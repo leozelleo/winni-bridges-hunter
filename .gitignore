@@ -1,0 +1,5 @@
+FULL_CLEAN_DROP/
+winnipesaukee_iphone_deploy/
+winnipesaukee_github/
+*.zip
+.DS_Store

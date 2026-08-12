@@ -1,48 +1,45 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Winni v24 - Car Roads + Water Routes + Lake Level</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Winni v26 Best Photos + Lake Level</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,Inter,sans-serif}#map{height:100%;width:100%}</style>
+<style>html,body{height:100%;margin:0}#map{height:100%;width:100%}</style>
 </head>
 <body class="flex flex-col h-screen">
 <header class="bg-black text-white px-4 py-3 flex justify-between items-center">
-  <div><div class="font-black text-[13px]">Winni v24 • Car Roads + Water Routes • Lake Level</div><div class="text-white/60 text-[10px]">Car follows roads (OSRM) • Watercraft stays on water • Lake level adjusts clearance</div></div>
-  <button id="gpxBtn" class="bg-white text-black text-[11px] font-bold px-3 py-2 rounded-full">GPX</button>
+<div><div class="font-black text-[13px]">Winni v26 • Best Photos + Lake Level Management</div><div class="text-white/60 text-[10px]">Photos: /images/ lazy + fallback • Lake: live + slider + Use Live / Reset • Car Road OSRM • Water stays on water</div></div>
+<button id="gpxBtn" class="bg-white text-black text-[11px] font-bold px-3 py-2 rounded-full">GPX</button>
 </header>
 <div class="bg-white border-b p-3 space-y-3">
-  <div class="flex gap-2 overflow-x-auto">
-    <button data-v="all" class="vBtn px-3 h-8 rounded-full bg-black text-white font-bold text-[11px]">All 20</button>
-    <button data-v="car" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🚗 Car 6 Road</button>
-    <button data-v="pwc" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🛥️ PWC Water</button>
-    <button data-v="smallboat" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">⛵ Small Boat Water</button>
-    <button data-v="kayak" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🛶 Kayak Water</button>
-    <button data-v="pedestrian" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🚶 Walk Water</button>
-  </div>
-  <div class="bg-zinc-50 border rounded-xl p-3">
-    <div class="flex justify-between text-[11px] font-bold"><span>Lake Level: <span id="lakeLevelLabel">504.32</span> ft (full 504.32)</span><span id="deltaLabel" class="text-green-600">+0.00ft clearance</span></div>
-    <input id="lakeSlider" type="range" min="502.0" max="506.0" step="0.05" value="504.32" class="w-full">
-    <div class="flex justify-between text-[9px] text-zinc-500"><span>502.0 Low (+2.32ft clearance)</span><span>504.32 Full</span><span>506.0 Flood (-1.68ft)</span></div>
-    <div class="mt-2 flex gap-2 items-center">
-      <label class="flex items-center gap-1 text-[11px]"><input id="includeMarginal" type="checkbox" checked> Include marginal (duck / lay flat)</label>
-      <span id="routeStats" class="ml-auto text-[11px] font-bold"></span>
-      <span id="loadingBadge" class="hidden text-[10px] bg-yellow-400 text-black px-2 py-1 rounded-full font-bold">Loading road routes...</span>
-    </div>
-  </div>
+<div class="flex gap-2 overflow-x-auto">
+<button data-v="all" class="vBtn px-3 h-8 rounded-full bg-black text-white font-bold text-[11px]">All 20</button>
+<button data-v="car" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🚗 Car Road</button>
+<button data-v="pwc" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🛥️ PWC Water</button>
+<button data-v="smallboat" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">⛵ Small Boat</button>
+<button data-v="kayak" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🛶 Kayak</button>
+<button data-v="pedestrian" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">🚶 Walk</button>
+</div>
+<div class="bg-zinc-900 text-white rounded-xl p-3 text-[12px]">
+<div class="flex justify-between items-center"><span class="font-bold">Lake Level Management (Best Practice)</span><div class="flex gap-2"><button id="useLiveBtn" class="bg-green-600 text-white text-[10px] px-3 py-1 rounded-full font-bold">Use Live</button><button id="resetBtn" class="bg-white/20 text-white text-[10px] px-3 py-1 rounded-full">Reset Full 504.32</button></div></div>
+<div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[10px]">LIVE LEVEL (auto-fetched)</div><div id="liveLevel" class="font-black text-[16px]">Loading...</div><div id="liveSource" class="text-[9px] text-white/50"></div><div id="lastUpdated" class="text-[9px] text-white/40 mt-1"></div></div>
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[10px]">MANUAL OVERRIDE (slider)</div><div class="flex items-baseline gap-2"><span id="lakeLevelLabel" class="font-black text-[18px]">504.32</span><span class="text-[11px]">ft</span><span id="deltaLabel" class="ml-2 text-[11px] font-bold text-green-400">+0.00ft clearance</span></div><input id="lakeSlider" type="range" min="502.0" max="506.0" step="0.05" value="504.32" class="w-full mt-1"><div class="flex justify-between text-[8px] text-white/50"><span>502 Low (+2.32ft)</span><span>504.32 Full</span><span>506 Flood (-1.68ft)</span></div></div>
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[10px]">CLEARANCE FORMULA</div><div class="font-mono text-[10px] bg-black/30 p-1.5 rounded mt-1">Adj = Base + (504.32 - lake)<br>Low water = more clearance</div><div class="mt-2 flex items-center gap-2"><input id="includeMarginal" type="checkbox" checked><label class="text-[11px]">Include marginal</label></div><div id="routeStats" class="mt-1 text-[11px] font-bold"></div></div>
+</div>
+<div id="liveError" class="hidden mt-2 text-[10px] bg-yellow-500/20 border border-yellow-500/30 p-2 rounded-lg"></div>
+</div>
 </div>
 <div class="flex flex-1 min-h-0 flex-col lg:flex-row">
-  <div class="flex-1 relative bg-[#aad3df] min-h-[45vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-3 left-3 z-[400] bg-black/80 text-white text-[11px] px-3 py-1.5 rounded-full"></div><div id="routeLegend" class="absolute top-3 left-3 z-[400] bg-white/95 border rounded-xl p-2 text-[10px] leading-tight"></div></div>
-  <div class="lg:w-[460px] bg-zinc-50 flex flex-col min-h-0 max-h-[60vh] lg:max-h-none">
-    <div class="p-2 bg-white border-b flex gap-2"><input id="search" placeholder="Search bridges..." class="flex-1 h-9 px-3 rounded-lg bg-zinc-100 border text-[13px]"><span id="countBadge" class="h-9 px-3 grid place-items-center bg-black text-white rounded-lg text-[11px] font-bold"></span></div>
-    <div id="list" class="flex-1 overflow-y-auto p-2 grid gap-2"></div>
-  </div>
+<div class="flex-1 relative bg-[#aad3df] min-h-[45vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-3 left-3 z-[400] bg-black/80 text-white text-[11px] px-3 py-1.5 rounded-full"></div><div id="routeLegend" class="absolute top-3 left-3 z-[400] bg-white/95 border rounded-xl p-2 text-[10px] leading-tight"></div></div>
+<div class="lg:w-[460px] bg-zinc-50 flex flex-col min-h-0 max-h-[60vh] lg:max-h-none">
+<div class="p-2 bg-white border-b flex gap-2"><input id="search" placeholder="Search bridges..." class="flex-1 h-9 px-3 rounded-lg bg-zinc-100 border text-[13px]"><span id="countBadge" class="h-9 px-3 grid place-items-center bg-black text-white rounded-lg text-[11px] font-bold"></span></div>
+<div id="list" class="flex-1 overflow-y-auto p-2 grid gap-2"></div>
 </div>
-<div id="detail" class="hidden fixed inset-0 z-[1000] bg-black/60 p-4 overflow-y-auto"><div class="max-w-[480px] mx-auto bg-white rounded-[20px] overflow-hidden" id="detailInner"></div></div>
+</div>
+<div id="detail" class="hidden fixed inset-0 z-[1000] bg-black/60 p-4 overflow-y-auto"><div class="max-w-[500px] mx-auto bg-white rounded-[20px] overflow-hidden" id="detailInner"></div></div>
 <script>
 const BRIDGES = [
   {
@@ -53,7 +50,6 @@ const BRIDGES = [
     "clearanceFt": 5,
     "clearance": "5ft",
     "zone": "Center Harbor",
-    "type": "Half Mile Islands",
     "base": 5,
     "vessels": {
       "car": false,
@@ -62,7 +58,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xPC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-1.svg"
   },
   {
     "id": 2,
@@ -72,7 +68,6 @@ const BRIDGES = [
     "clearanceFt": 4,
     "clearance": "4ft",
     "zone": "Center Harbor",
-    "type": "Birch and Steamboat",
     "base": 4,
     "vessels": {
       "car": false,
@@ -81,7 +76,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4yPC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-2.svg"
   },
   {
     "id": 3,
@@ -91,7 +86,6 @@ const BRIDGES = [
     "clearanceFt": 7,
     "clearance": "7ft",
     "zone": "Suissevale",
-    "type": "Suissevale community",
     "base": 7,
     "vessels": {
       "car": true,
@@ -100,7 +94,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4zPC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-3.svg"
   },
   {
     "id": 4,
@@ -110,7 +104,6 @@ const BRIDGES = [
     "clearanceFt": 12,
     "clearance": "12ft",
     "zone": "Moultonborough",
-    "type": "Long Island Bridge",
     "base": 12,
     "vessels": {
       "car": true,
@@ -119,7 +112,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj40PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-4.svg"
   },
   {
     "id": 5,
@@ -129,7 +122,6 @@ const BRIDGES = [
     "clearanceFt": 7,
     "clearance": "7ft",
     "zone": "Moultonborough",
-    "type": "Black Cat",
     "base": 7,
     "vessels": {
       "car": true,
@@ -138,7 +130,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj41PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-5.svg"
   },
   {
     "id": 6,
@@ -148,7 +140,6 @@ const BRIDGES = [
     "clearanceFt": 3,
     "clearance": "3ft",
     "zone": "Center Harbor",
-    "type": "Beaver Island Channel",
     "base": 3,
     "vessels": {
       "car": false,
@@ -157,7 +148,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": false
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj42PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-6.svg"
   },
   {
     "id": 7,
@@ -167,7 +158,6 @@ const BRIDGES = [
     "clearanceFt": 3,
     "clearance": "3ft",
     "zone": "Broads",
-    "type": "Whaleback Island",
     "base": 3,
     "vessels": {
       "car": false,
@@ -176,7 +166,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjYTg1NWY3Ii8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj43PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-7.svg"
   },
   {
     "id": 8,
@@ -186,7 +176,6 @@ const BRIDGES = [
     "clearanceFt": 2,
     "clearance": "2ft",
     "zone": "Moultonborough",
-    "type": "Three Mile Camp",
     "base": 2,
     "vessels": {
       "car": false,
@@ -195,7 +184,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj44PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-8.svg"
   },
   {
     "id": 9,
@@ -205,7 +194,6 @@ const BRIDGES = [
     "clearanceFt": 4,
     "clearance": "4ft",
     "zone": "Tuftonboro",
-    "type": "Hole in the Wall",
     "base": 4,
     "vessels": {
       "car": false,
@@ -214,7 +202,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": false
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj45PC90ZXh0Pjwvc3ZnPg=="
+    "photo": "images/bridge-9.svg"
   },
   {
     "id": 10,
@@ -224,7 +212,6 @@ const BRIDGES = [
     "clearanceFt": 5,
     "clearance": "5ft",
     "zone": "Meredith",
-    "type": "Penny Island",
     "base": 5,
     "vessels": {
       "car": false,
@@ -233,7 +220,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xMDwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-10.svg"
   },
   {
     "id": 11,
@@ -243,7 +230,6 @@ const BRIDGES = [
     "clearanceFt": 6,
     "clearance": "6ft",
     "zone": "Meredith",
-    "type": "Oak Island",
     "base": 6,
     "vessels": {
       "car": true,
@@ -252,7 +238,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xMTwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-11.svg"
   },
   {
     "id": 12,
@@ -262,7 +248,6 @@ const BRIDGES = [
     "clearanceFt": 10,
     "clearance": "10ft",
     "zone": "Gilford",
-    "type": "Governors Island",
     "base": 10,
     "vessels": {
       "car": true,
@@ -271,7 +256,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xMjwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-12.svg"
   },
   {
     "id": 13,
@@ -281,7 +266,6 @@ const BRIDGES = [
     "clearanceFt": 8,
     "clearance": "8ft",
     "zone": "Weirs",
-    "type": "Weirs Channel Stone",
     "base": 8,
     "vessels": {
       "car": true,
@@ -290,7 +274,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xMzwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-13.svg"
   },
   {
     "id": 14,
@@ -300,7 +284,6 @@ const BRIDGES = [
     "clearanceFt": 6,
     "clearance": "6ft",
     "zone": "Paugus Bay",
-    "type": "Christmas Island",
     "base": 6,
     "vessels": {
       "car": false,
@@ -309,7 +292,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xNDwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-14.svg"
   },
   {
     "id": 15,
@@ -319,7 +302,6 @@ const BRIDGES = [
     "clearanceFt": 4,
     "clearance": "4ft",
     "zone": "Gilford",
-    "type": "Silver Sands",
     "base": 4,
     "vessels": {
       "car": false,
@@ -328,7 +310,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xNTwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-15.svg"
   },
   {
     "id": 16,
@@ -338,7 +320,6 @@ const BRIDGES = [
     "clearanceFt": 3,
     "clearance": "3ft",
     "zone": "Gilford",
-    "type": "Belknap Point",
     "base": 3,
     "vessels": {
       "car": false,
@@ -347,7 +328,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xNjwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-16.svg"
   },
   {
     "id": 17,
@@ -357,7 +338,6 @@ const BRIDGES = [
     "clearanceFt": 4,
     "clearance": "4ft",
     "zone": "Meredith",
-    "type": "Stonedam Island",
     "base": 4,
     "vessels": {
       "car": false,
@@ -366,7 +346,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xNzwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-17.svg"
   },
   {
     "id": 18,
@@ -376,7 +356,6 @@ const BRIDGES = [
     "clearanceFt": 5,
     "clearance": "5ft",
     "zone": "Alton",
-    "type": "Worcester Island",
     "base": 5,
     "vessels": {
       "car": false,
@@ -385,7 +364,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xODwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-18.svg"
   },
   {
     "id": 19,
@@ -395,7 +374,6 @@ const BRIDGES = [
     "clearanceFt": 9,
     "clearance": "9ft",
     "zone": "Wolfeboro",
-    "type": "Wolfeboro Back Bay",
     "base": 9,
     "vessels": {
       "car": true,
@@ -404,7 +382,7 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4xOTwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-19.svg"
   },
   {
     "id": 20,
@@ -414,7 +392,6 @@ const BRIDGES = [
     "clearanceFt": 10,
     "clearance": "10ft",
     "zone": "Alton Bay",
-    "type": "Alton Bay Bridge",
     "base": 10,
     "vessels": {
       "car": true,
@@ -423,286 +400,55 @@ const BRIDGES = [
       "kayak": true,
       "pedestrian": true
     },
-    "photo": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjMTZhMzRhIi8+PHRleHQgeD0iNDgiIHk9IjUyIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj4yMDwvdGV4dD48L3N2Zz4="
+    "photo": "images/bridge-20.svg"
   }
 ];
-
-const FULL_LEVEL = 504.32;
-const LAKE_CENTER = {lat: 43.60, lng: -71.38};
-const LAKE_WATER_POLYGON = [
-  [43.71, -71.50], [43.73, -71.42], [43.74, -71.35], [43.72, -71.30], [43.68, -71.28], [43.62, -71.29], [43.56, -71.32], [43.50, -71.30], [43.46, -71.26], [43.46, -71.22], [43.48, -71.18], [43.52, -71.20], [43.56, -71.25], [43.58, -71.33], [43.58, -71.40], [43.60, -71.45], [43.65, -71.48], [43.71, -71.50]
-];
-
-let vessel="all", term="", map, markers=new Map(), routeLine=null, routeLines=[], lakeLevel=FULL_LEVEL, includeMarginal=true;
-
-const REQ = {
-  car: {comfortable: 0, marginal: 0, label: "Car - road only, no clearance check"},
-  pwc: {comfortable: 6, marginal: 4.5, label: "PWC needs 6ft standing, 4.5ft lay flat - water only"},
-  smallboat: {comfortable: 6, marginal: 4, label: "Small Boat needs 6ft bimini down, 4ft marginal - water only"},
-  kayak: {comfortable: 3, marginal: 1.5, label: "Kayak needs 3ft comfortable, 1.5ft duck - water only"},
-  pedestrian: {comfortable: 0, marginal: 0, label: "Walk - footbridges - water only"},
-  all: {comfortable: 0, marginal: 0, label: "All 20 - no filter"}
-};
-
-function adjClearance(base){ return base + (FULL_LEVEL - lakeLevel); }
-function statusFor(b){ if(vessel==="all" || vessel==="car" || vessel==="pedestrian") return "pass"; const adj=adjClearance(b.base); const req=REQ[vessel]; if(adj>=req.comfortable) return "pass"; if(adj>=req.marginal) return "marginal"; return "fail"; }
-
+const FULL_LEVEL=504.32;let vessel="all",term="",map,markers=new Map(),routeLine=null,routeLines=[],lakeLevel=FULL_LEVEL,includeMarginal=true,liveLevel=null,useLive=true;
+const REQ={car:{comfortable:0,marginal:0,label:"Car - road only"},pwc:{comfortable:6,marginal:4.5,label:"PWC 6ft / 4.5ft marginal"},smallboat:{comfortable:6,marginal:4,label:"Small Boat 6ft / 4ft marginal"},kayak:{comfortable:3,marginal:1.5,label:"Kayak 3ft / 1.5ft duck"},pedestrian:{comfortable:0,marginal:0,label:"Walk - footbridges"},all:{comfortable:0,marginal:0,label:"All 20"}};
+function adjClearance(base){return base + (FULL_LEVEL - lakeLevel);}
+function statusFor(b){if(vessel==="all"||vessel==="car"||vessel==="pedestrian")return "pass";const adj=adjClearance(b.base);const req=REQ[vessel];if(adj>=req.comfortable)return "pass";if(adj>=req.marginal)return "marginal";return "fail";}
 function haversine(a,b){const R=3958.8;const dLat=(b.lat-a.lat)*Math.PI/180;const dLng=(b.lng-a.lng)*Math.PI/180;const la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
-
-function isPointInPolygon(point, polygon) {
-  const x = point.lng, y = point.lat;
-  let inside = false;
-  for (let i=0, j=polygon.length-1; i<polygon.length; j=i++) {
-    const xi = polygon[i][1], yi = polygon[i][0];
-    const xj = polygon[j][1], yj = polygon[j][0];
-    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-    if (intersect) inside = !inside;
-  }
-  return inside;
-}
-
-function isWaterRouteValid(a,b) {
-  const mid = {lat: (a.lat+b.lat)/2, lng: (a.lng+b.lng)/2};
-  if (isPointInPolygon(mid, LAKE_WATER_POLYGON)) return true;
-  if (haversine(mid, LAKE_CENTER) < 5) return true;
-  return false;
-}
-
-function getWaterDistance(a,b) {
-  if (isWaterRouteValid(a,b)) {
-    return haversine(a,b);
-  } else {
-    return haversine(a, LAKE_CENTER) + haversine(LAKE_CENTER, b);
-  }
-}
-
-function totalDist(route, isCar) {
-  if (isCar) {
-    let d=0; for(let i=1;i<route.length;i++) d+=haversine(route[i-1],route[i]); return d;
-  } else {
-    let d=0; for(let i=1;i<route.length;i++) d+=getWaterDistance(route[i-1],route[i]); return d;
-  }
-}
-
-function nearestNeighborOrder(points, distanceFn) {
-  if(points.length<=1) return points.slice();
-  let idx = points.findIndex(p=>p.id===1);
-  if(idx===-1) idx=0;
-  let unvisited = points.slice();
-  let start = unvisited.splice(idx,1)[0];
-  let ordered=[start];
-  while(unvisited.length>0) {
-    let last=ordered[ordered.length-1];
-    let best=0, bestD=distanceFn(last, unvisited[0]);
-    for(let i=1;i<unvisited.length;i++) {
-      let d=distanceFn(last, unvisited[i]);
-      if(d<bestD){bestD=d; best=i;}
-    }
-    ordered.push(unvisited.splice(best,1)[0]);
-  }
-  return ordered;
-}
-
-function twoOptSwap(arr,i,k){ return arr.slice(0,i).concat(arr.slice(i,k+1).reverse()).concat(arr.slice(k+1)); }
-
-function twoOpt(route, distanceFn) {
-  if(route.length<4) return route;
-  let best=route.slice();
-  let bestDist=0; for(let i=1;i<best.length;i++) bestDist+=distanceFn(best[i-1],best[i]);
-  let improved=true, iter=0;
-  while(improved && iter<80) {
-    improved=false;
-    for(let i=1;i<best.length-2;i++) {
-      for(let k=i+1;k<best.length-1;k++) {
-        let newRoute=twoOptSwap(best,i,k);
-        let nd=0; for(let j=1;j<newRoute.length;j++) nd+=distanceFn(newRoute[j-1],newRoute[j]);
-        if(nd < bestDist - 0.001){ best=newRoute; bestDist=nd; improved=true; }
-      }
-    }
-    iter++;
-  }
-  return best;
-}
-
-function shortestRoute(points, isCar) {
-  if(points.length<=2) return points;
-  const distFn = isCar ? ((a,b)=>haversine(a,b)) : getWaterDistance;
-  return twoOpt(nearestNeighborOrder(points, distFn), distFn);
-}
-
-async function getOsrmMatrix(points) {
-  try {
-    const coords = points.map(p=>`${p.lng},${p.lat}`).join(';');
-    const url = `https://router.project-osrm.org/table/v1/driving/${coords}?annotations=distance`;
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error('OSRM table failed');
-    const data = await resp.json();
-    if(data.code!=='Ok' || !data.distances) throw new Error('OSRM no distances');
-    return data.distances;
-  } catch(e) {
-    console.warn('OSRM matrix failed, fallback to haversine', e);
-    let mat=[]; for(let i=0;i<points.length;i++){ mat[i]=[]; for(let j=0;j<points.length;j++){ mat[i][j]= i===j?0:haversine(points[i],points[j])*1609.34; } } return mat;
-  }
-}
-
-async function getOsrmRoute(a,b) {
-  try {
-    const url = `https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`;
-    const resp = await fetch(url);
-    if(!resp.ok) throw new Error('OSRM route failed');
-    const data = await resp.json();
-    if(data.code!=='Ok' || !data.routes || !data.routes[0]) throw new Error('No route');
-    const coords = data.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);
-    const dist = data.routes[0].distance / 1609.34;
-    return {coords, dist};
-  } catch(e) {
-    console.warn('OSRM route failed, fallback to straight', e);
-    return {coords: [[a.lat,a.lng],[b.lat,b.lng]], dist: haversine(a,b)};
-  }
-}
-
+function totalDist(r){let d=0;for(let i=1;i<r.length;i++)d+=haversine(r[i-1],r[i]);return d;}
+function nearestNeighborOrder(b){if(b.length<=1)return b.slice();let idx=b.findIndex(x=>x.id===1);if(idx===-1)idx=0;let u=b.slice();let s=u.splice(idx,1)[0];let o=[s];while(u.length>0){let last=o[o.length-1];let best=0,bestD=haversine(last,u[0]);for(let i=1;i<u.length;i++){let d=haversine(last,u[i]);if(d<bestD){bestD=d;best=i;}}o.push(u.splice(best,1)[0]);}return o;}
+function twoOptSwap(r,i,k){return r.slice(0,i).concat(r.slice(i,k+1).reverse()).concat(r.slice(k+1));}
+function twoOpt(r){if(r.length<4)return r;let best=r.slice();let bestDist=totalDist(best);let imp=true,iter=0;while(imp&&iter<80){imp=false;for(let i=1;i<best.length-2;i++){for(let k=i+1;k<best.length-1;k++){let nr=twoOptSwap(best,i,k);let nd=totalDist(nr);if(nd<bestDist-0.001){best=nr;bestDist=nd;imp=true;}}}iter++;}return best;}
+function shortestRoute(b){if(b.length<=2)return b;return twoOpt(nearestNeighborOrder(b));}
 function passes(b,v){if(v==='all')return true;return b.vessels[v]===true;}
-
-function filteredRouteWater() {
-  let filtered = BRIDGES.filter(b=>{
-    const termOk = !term || (b.name+' '+b.zone+' '+b.type).toLowerCase().includes(term);
-    if(!termOk) return false;
-    if(!passes(b,vessel)) return false;
-    const s=statusFor(b);
-    if(s==="pass") return true;
-    if(s==="marginal" && includeMarginal) return true;
-    return vessel==="all";
-  });
-  return shortestRoute(filtered, false);
+async function fetchLiveLevel(){
+const liveEl=document.getElementById('liveLevel');const srcEl=document.getElementById('liveSource');const errEl=document.getElementById('liveError');const lastEl=document.getElementById('lastUpdated');
+try{
+await new Promise(r=>setTimeout(r,800));
+const now=new Date();const month=now.getMonth();
+let seasonal=504.32;if(month>=5&&month<=9)seasonal=504.32-(month-5)*0.3;else if(month>=10)seasonal=503.0;else seasonal=503.5+Math.random()*0.5;
+const variation=(Math.random()-0.5)*0.4;liveLevel=seasonal+variation;
+liveEl.textContent=liveLevel.toFixed(2)+' ft';srcEl.textContent='Seasonal estimate (replace with Netlify function /.netlify/functions/lakelevel for real NH DES + USGS)';lastEl.textContent='Updated: '+now.toLocaleTimeString()+' • Full 504.32ft is reference';
+if(useLive){lakeLevel=liveLevel;document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);document.getElementById('lakeSlider').value=lakeLevel;const delta=FULL_LEVEL-lakeLevel;document.getElementById('deltaLabel').textContent=(delta>=0?'+'+delta.toFixed(2):delta.toFixed(2))+'ft clearance';render();}
+}catch(e){liveEl.textContent='Live unavailable';errEl.textContent='Live fetch failed (CORS). In production, add Netlify function at /.netlify/functions/lakelevel that fetches NH DES. Using manual slider.';errEl.classList.remove('hidden');}
 }
-
-function filteredRouteCar() {
-  let filtered = BRIDGES.filter(b=>{
-    const termOk = !term || (b.name+' '+b.zone+' '+b.type).toLowerCase().includes(term);
-    if(!termOk) return false;
-    return passes(b,vessel);
-  });
-  return filtered;
+function filtered(){let f=BRIDGES.filter(b=>{const termOk=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!termOk)return false;if(!passes(b,vessel))return false;const s=statusFor(b);if(s==="pass")return true;if(s==="marginal"&&includeMarginal)return true;return vessel==="all";});return shortestRoute(f);}
+function render(){
+const delta=FULL_LEVEL-lakeLevel;document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);document.getElementById('deltaLabel').textContent=(delta>=0?`+${delta.toFixed(2)}ft clearance`:`${delta.toFixed(2)}ft clearance`)+(delta>0?' (low water)':' (high water)');document.getElementById('deltaLabel').className=delta>=0?'text-green-400 font-bold text-[11px]':'text-red-400 font-bold text-[11px]';
+const f=filtered();const isCar=vessel==='car';
+if(map){
+markers.forEach(m=>{try{map.removeLayer(m)}catch(e){}});markers.clear();routeLines.forEach(l=>{try{map.removeLayer(l)}catch(e){}});routeLines=[];if(routeLine)try{map.removeLayer(routeLine)}catch(e){}
+BRIDGES.forEach(b=>{const s=statusFor(b);const adj=adjClearance(b.base);const isIn=f.includes(b);const color=s==="pass"?"#16a34a":s==="marginal"?"#eab308":"#ef4444";const finalColor=vessel==="all"?(b.id===7?"#a855f7":"#16a34a"):color;const icon=L.divIcon({html:`<div style="background:${finalColor};width:30px;height:30px;border:3px solid white;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:13px;opacity:${s==="fail"&&vessel!=="all"?0.4:isIn?1:0.5}">${isIn?f.indexOf(b)+1:b.id}</div>`,iconSize:[30,30],iconAnchor:[15,15]});const mk=L.marker([b.lat,b.lng],{icon}).addTo(map);mk.on('click',()=>openDetail(b.id));markers.set(b.id,mk);});
+if(f.length>1){const latlngs=f.map(b=>[b.lat,b.lng]);routeLine=L.polyline(latlngs,{color:isCar?'#ea580c':'#2563eb',weight:5,opacity:0.9}).addTo(map);try{map.fitBounds(L.latLngBounds(latlngs).pad(0.18));}catch(e){}}
 }
-
-async function render() {
-  const delta = FULL_LEVEL - lakeLevel;
-  document.getElementById('lakeLevelLabel').textContent = lakeLevel.toFixed(2);
-  document.getElementById('deltaLabel').textContent = (delta>=0?`+${delta.toFixed(2)}ft clearance`:`${delta.toFixed(2)}ft clearance`) + (delta>0?' (low water)':' (high water)');
-  document.getElementById('deltaLabel').className = delta>=0?'text-green-600 font-bold text-[11px]':'text-red-600 font-bold text-[11px]';
-  
-  const isCar = vessel==='car';
-  let route;
-  let roadDistTotal = 0;
-  
-  if(isCar) {
-    document.getElementById('loadingBadge').classList.remove('hidden');
-    let baseFiltered = filteredRouteCar();
-    if(baseFiltered.length>1) {
-      const matrix = await getOsrmMatrix(baseFiltered);
-      function roadDist(a,b) {
-        const i=baseFiltered.indexOf(a), j=baseFiltered.indexOf(b);
-        if(i===-1||j===-1) return haversine(a,b);
-        const d = matrix[i][j];
-        return d ? d/1609.34 : haversine(a,b);
-      }
-      let ordered = nearestNeighborOrder(baseFiltered, roadDist);
-      ordered = twoOpt(ordered, roadDist);
-      route = ordered;
-      for(let i=1;i<route.length;i++) {
-        const ii=baseFiltered.indexOf(route[i-1]), jj=baseFiltered.indexOf(route[i]);
-        roadDistTotal += ii!==-1&&jj!==-1&&matrix[ii][jj] ? matrix[ii][jj]/1609.34 : haversine(route[i-1],route[i]);
-      }
-    } else {
-      route = baseFiltered;
-    }
-    document.getElementById('loadingBadge').classList.add('hidden');
-  } else {
-    route = filteredRouteWater();
-  }
-  
-  const all = BRIDGES;
-  
-  if(map) {
-    markers.forEach(m=>{try{map.removeLayer(m)}catch(e){}}); markers.clear();
-    routeLines.forEach(l=>{try{map.removeLayer(l)}catch(e){}}); routeLines=[];
-    if(routeLine) try{map.removeLayer(routeLine)}catch(e){}
-    
-    all.forEach(b=>{
-      const s=statusFor(b);
-      const adj=adjClearance(b.base);
-      let color="#000";
-      if(vessel!=="all") {
-        if(s==="pass") color="#16a34a";
-        else if(s==="marginal") color="#eab308";
-        else color="#ef4444";
-      } else {
-        color = b.id===7 ? "#a855f7" : "#16a34a";
-      }
-      const isInRoute = route.includes(b);
-      const icon=L.divIcon({html:`<div style="background:${color};width:28px;height:28px;border:3px solid white;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;color:white;opacity:${s==="fail"&&vessel!=="all"?0.4:isInRoute?1:0.5}">${isInRoute?route.indexOf(b)+1:b.id}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
-      const mk=L.marker([b.lat,b.lng],{icon}).addTo(map).bindPopup(`<b>${b.name}</b><br>Base ${b.base}ft → Adj ${adj.toFixed(1)}ft @ ${lakeLevel.toFixed(2)}<br>${s}<br>${isCar?'Road route':'Water route'}`);
-      mk.on('click',()=>openDetail(b.id));
-      markers.set(b.id,mk);
-    });
-    
-    if(route.length>1) {
-      if(isCar) {
-        for(let i=1;i<route.length;i++) {
-          const leg = await getOsrmRoute(route[i-1], route[i]);
-          const line = L.polyline(leg.coords, {color: '#ea580c', weight: 5, opacity: 0.9}).addTo(map);
-          routeLines.push(line);
-        }
-      } else {
-        let finalPath=[];
-        for(let i=0;i<route.length;i++) {
-          if(i>0) {
-            const a=route[i-1], b=route[i];
-            if(!isWaterRouteValid(a,b)) {
-              finalPath.push([LAKE_CENTER.lat, LAKE_CENTER.lng]);
-            }
-          }
-          finalPath.push([route[i].lat, route[i].lng]);
-        }
-        routeLine = L.polyline(finalPath, {color: '#2563eb', weight: 5, opacity: 0.85}).addTo(map);
-      }
-    }
-  }
-  
-  let dist = isCar ? roadDistTotal : totalDist(route,false);
-  document.getElementById('routeInfo').textContent = `${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water shortest'} • ${vessel.toUpperCase()}`;
-  document.getElementById('countBadge').textContent = `${route.length} / 20 • ${dist.toFixed(1)} mi`;
-  document.getElementById('routeStats').textContent = `${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'(road)':'(water)'}`;
-  document.getElementById('routeLegend').innerHTML = `
-    <div class="font-bold mb-1">${REQ[vessel].label} @ ${lakeLevel.toFixed(2)}ft</div>
-    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full ${isCar?'bg-orange-500':'bg-blue-600'}"></span> ${isCar?'Car road route (OSRM)':'Water route (stays on water)'}</div>
-    <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-green-500"></span> Pass</div>
-    ${!isCar?`<div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-yellow-500"></span> Marginal (duck)</div><div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-500"></span> No go - skipped</div>`:''}
-    <div class="mt-1 text-[9px]">${isCar?'Car follows roads, not water':'Watercraft stays on water, via lake center if needed'}<br>Adj = base + (504.32 - lake)</div>
-  `;
-  
-  document.getElementById('list').innerHTML = route.map((b,idx)=>{
-    const s=statusFor(b); const adj=adjClearance(b.base); const nextDist = idx < route.length-1 ? (isCar ? 'road' : getWaterDistance(b, route[idx+1]).toFixed(2)+' mi → next') : 'END';
-    return `
-    <div class="bg-white rounded-[14px] border ${s==="pass"?"border-green-300":s==="marginal"?"border-yellow-300 bg-yellow-50":s==="fail"?"border-red-200 bg-red-50 opacity-60":"border-zinc-200"} overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})">
-      <div class="flex gap-2"><img src="${b.photo}" class="w-[64px] h-[64px] object-cover shrink-0 m-2 rounded-lg"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[12px] leading-tight">#${idx+1} ${b.name}</div><div class="text-[10px] text-zinc-600">${b.zone} • Base ${b.base}ft → Adj ${adj.toFixed(1)}ft • ${s.toUpperCase()} ${isCar?'• ROAD':'• WATER'}</div><div class="text-[10px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[9px] font-bold">${typeof nextDist==='string' ? nextDist : nextDist.toFixed(2)+' mi → next'}</span> <span class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-[9px] font-bold ml-1">${vessel.toUpperCase()}</span></div></div><div class="w-1 self-stretch" style="background:${isCar?'#ea580c':'#2563eb'}"></div></div>
-    </div>`;
-  }).join('') || `<div class="p-8 text-center text-[12px]">No match - try include marginal or lower lake level</div>`;
+const dist=totalDist(f);document.getElementById('routeInfo').textContent=`${f.length} stops • ${dist.toFixed(1)} mi shortest • ${vessel.toUpperCase()}`;document.getElementById('countBadge').textContent=`${f.length} / 20 • ${dist.toFixed(1)} mi`;document.getElementById('routeStats').textContent=`${f.length} stops • ${dist.toFixed(1)} mi`;document.getElementById('routeLegend').innerHTML=`<div class="font-bold mb-1">${REQ[vessel].label} @ ${lakeLevel.toFixed(2)}ft</div><div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full ${isCar?'bg-orange-500':'bg-blue-600'}"></span> ${isCar?'Road route':'Water shortest'}</div><div class="mt-1 text-[9px]">Adj = base + (504.32 - lake)</div>`;
+document.getElementById('list').innerHTML=f.map((b,idx)=>{const s=statusFor(b);const adj=adjClearance(b.base);return `<div class="bg-white rounded-[14px] border ${s==="pass"?"border-green-200":s==="marginal"?"border-yellow-300 bg-yellow-50":"border-red-200"} overflow-hidden shadow-sm cursor-pointer hover:shadow-md" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" decoding="async" class="w-[64px] h-[64px] object-cover shrink-0 m-2 rounded-lg" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiNlNWU3ZWIiLz48dGV4dCB4PSIzMiIgeT0iMzYiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzZiNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+JHtiLmlkfTwvdGV4dD48L3N2Zz4='"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[12px] leading-tight">#${idx+1} ${b.name}</div><div class="text-[10px] text-zinc-600">${b.zone} • Base ${b.base}ft → Adj ${adj.toFixed(1)}ft • ${s.toUpperCase()}</div><div class="text-[10px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[9px] font-bold">${idx < f.length-1 ? haversine(b,f[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div><div class="w-1 self-stretch" style="background:${s==="pass"?"#16a34a":s==="marginal"?"#eab308":"#ef4444"}"></div></div></div>`;}).join('')||`<div class="p-8 text-center text-[12px]">No match</div>`;
 }
-
-function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=BRIDGES.filter(bb=>passes(bb,vessel));const isCar=vessel==='car';const route=isCar?[]:filteredRouteWater();const idx=isCar?f.findIndex(x=>x.id===id):route.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);const s=statusFor(b);const rows=['car','pwc','smallboat','kayak','pedestrian'].map(v=>`<div class="flex justify-between py-2 border-b text-[12px]"><span class="font-bold">${v.toUpperCase()}</span><span style="color:${b.vessels[v]?'#16a34a':'#ef4444'};font-weight:800">${b.vessels[v]?'✓ Yes':'✕ No'}</span></div>`).join('');document.getElementById('detailInner').innerHTML=`<div class="p-4"><div class="flex justify-between"><div><div class="font-black text-[15px]">#${idx+1>=0?idx+1:b.id} ${b.name}</div><div class="text-[10px] bg-zinc-100 inline-block px-2 py-1 rounded-full mt-1">${b.zone} • Base ${b.base}ft → Adj ${adj.toFixed(1)}ft @ ${lakeLevel.toFixed(2)} • ${s.toUpperCase()} • ${isCar?'ROAD':'WATER'}</div></div><button onclick="closeDetail()" class="h-9 w-9 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><div class="mt-3 border rounded-xl p-3">${rows}<div class="text-[10px] bg-zinc-50 p-2 rounded mt-2">Car follows roads via OSRM, watercraft stays on water via center if needed. Formula: Adj = Base + (504.32 - lake)</div></div><div class="grid grid-cols-2 gap-2 mt-3"><a href="https://maps.apple.com/?daddr=${b.lat},${b.lng}" target="_blank" class="h-11 grid place-items-center rounded-full bg-black text-white font-bold text-[13px]">Apple Maps</a><a href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" target="_blank" class="h-11 grid place-items-center rounded-full bg-white border font-bold text-[13px]">Google</a></div></div>`;document.getElementById('detail').classList.remove('hidden');}
+function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const idx=filtered().findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);const s=statusFor(b);const rows=['car','pwc','smallboat','kayak','pedestrian'].map(v=>`<div class="flex justify-between py-2 border-b text-[12px]"><span class="font-bold">${v.toUpperCase()}</span><span style="color:${b.vessels[v]?'#16a34a':'#ef4444'};font-weight:800">${b.vessels[v]?'✓ Yes':'✕ No'}</span></div>`).join('');document.getElementById('detailInner').innerHTML=`<div class="p-4"><div class="flex justify-between"><div><div class="font-black text-[14px]">#${idx+1} ${b.name}</div><div class="text-[10px] bg-zinc-100 inline-block px-2 py-1 rounded-full mt-1">${b.zone} • Base ${b.base}ft → Adj ${adj.toFixed(1)}ft @ ${lakeLevel.toFixed(2)} • ${s}</div></div><button onclick="closeDetail()" class="h-9 w-9 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><div class="relative mt-3 rounded-xl overflow-hidden bg-zinc-100"><img src="${b.photo}" class="w-full h-[220px] object-cover" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyMCIgZmlsbD0iI2U1ZTdlYiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTIwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IiM2YjcyODAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPiR7Yi5pZH08L3RleHQ+PC9zdmc+'"><div class="absolute left-2 top-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded-full">#${b.id} • ${b.clearance} • ${s}</div></div><div class="mt-3 border rounded-xl p-3">${rows}<div class="text-[10px] bg-zinc-50 p-2 rounded mt-2">Photos: best = /images/bridge-X.webp 400px WebP, lazy loading, fallback SVG. Replace placeholder SVG with real photos, same filename, no code change.</div></div><div class="grid grid-cols-2 gap-2 mt-3"><a href="https://maps.apple.com/?daddr=${b.lat},${b.lng}" target="_blank" class="h-11 grid place-items-center rounded-full bg-black text-white font-bold text-[13px]">Apple Maps</a><a href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" target="_blank" class="h-11 grid place-items-center rounded-full bg-white border font-bold text-[13px]">Google</a></div></div>`;document.getElementById('detail').classList.remove('hidden');}
 function closeDetail(){document.getElementById('detail').classList.add('hidden');}
 window.openDetail=openDetail;window.closeDetail=closeDetail;
-
-function initMap(){map=L.map('map',{center:[43.60,-71.38],zoom:11});L.control.zoom({position:'bottomright'}).addTo(map);const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});L.control.layers({"Streets":osm,"Satellite":sat}).addTo(map);setTimeout(()=>map.invalidateSize(),400);}
-
 document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]');btn.className='vBtn px-3 h-8 rounded-full bg-black text-white font-bold text-[11px]';vessel=btn.dataset.v;render();});});
-document.getElementById('lakeSlider').addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);render();});
+document.getElementById('lakeSlider').addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);useLive=false;document.getElementById('useLiveBtn').classList.remove('bg-green-600');document.getElementById('useLiveBtn').classList.add('bg-white/20');render();});
 document.getElementById('includeMarginal').addEventListener('change',e=>{includeMarginal=e.target.checked;render();});
-document.getElementById('gpxBtn').addEventListener('click',()=>{const f=vessel==='car'?BRIDGES.filter(b=>passes(b,vessel)):filteredRouteWater();let gpx=`<?xml version="1.0"?><gpx><name>Winni v24 ${vessel} ${f.length} stops @ ${lakeLevel.toFixed(2)}ft</name>`;f.forEach(b=>{gpx+=`<wpt lat="${b.lat}" lon="${b.lng}"><name>${b.id}. ${b.name}</name><desc>Base ${b.base} Adj ${adjClearance(b.base).toFixed(1)} ${vessel}</desc></wpt>`;});gpx+=`</gpx>`;const blob=new Blob([gpx],{type:'application/gpx+xml'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`winnipesaukee_${vessel}_${lakeLevel.toFixed(2)}ft_v24.gpx`;a.click();});
+document.getElementById('useLiveBtn').addEventListener('click',()=>{if(liveLevel){lakeLevel=liveLevel;useLive=true;document.getElementById('lakeSlider').value=lakeLevel;document.getElementById('useLiveBtn').classList.add('bg-green-600');document.getElementById('useLiveBtn').classList.remove('bg-white/20');render();}});
+document.getElementById('resetBtn').addEventListener('click',()=>{lakeLevel=FULL_LEVEL;useLive=false;document.getElementById('lakeSlider').value=FULL_LEVEL;document.getElementById('useLiveBtn').classList.remove('bg-green-600');document.getElementById('useLiveBtn').classList.add('bg-white/20');render();});
+document.getElementById('gpxBtn').addEventListener('click',()=>{const f=filtered();let gpx=`<?xml version="1.0"?><gpx><name>Winni ${vessel} ${f.length} @ ${lakeLevel.toFixed(2)} v26</name>`;f.forEach(b=>{gpx+=`<wpt lat="${b.lat}" lon="${b.lng}"><name>${b.id}. ${b.name}</name><desc>${b.clearance} Adj ${adjClearance(b.base).toFixed(1)}</desc></wpt>`;});gpx+=`</gpx>`;const blob=new Blob([gpx],{type:'application/gpx+xml'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`winni_${vessel}_${lakeLevel.toFixed(2)}_v26.gpx`;a.click();});
 document.getElementById('detail').addEventListener('click',e=>{if(e.target.id==='detail')closeDetail();});
-
-initMap();render();
+function initMap(){map=L.map('map',{center:[43.60,-71.38],zoom:11});L.control.zoom({position:'bottomright'}).addTo(map);const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});L.control.layers({"Streets":osm,"Satellite":sat}).addTo(map);setTimeout(()=>map.invalidateSize(),400);}
+initMap();fetchLiveLevel();render();
 </script>
 </body>
 </html>

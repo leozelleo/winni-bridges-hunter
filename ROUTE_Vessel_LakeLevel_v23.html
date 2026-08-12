@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Winni FINAL 20 Shortest FIXED v23</title>
+<title>Winni ROUTE Vessel + Lake Level v23</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -14,13 +14,21 @@
   <div><div class="font-black text-[13px]">Winni FINAL 20 Shortest v23 • All Pins Corrected</div><div class="text-white/60 text-[10px]">Shortest distance per vessel • Green = route order • Click marker for details</div></div>
   <button id="gpxBtn" class="bg-white text-black text-[11px] font-bold px-3 py-2 rounded-full">GPX Shortest</button>
 </header>
-<div class="bg-white border-b p-2 flex gap-2 overflow-x-auto">
+<div class="bg-white border-b p-3 space-y-2">
+<div class="flex gap-2 overflow-x-auto">
   <button data-v="all" class="vBtn px-3 h-8 rounded-full bg-black text-white font-bold text-[11px]">All 20</button>
   <button data-v="car" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">Car 6</button>
   <button data-v="pwc" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">PWC</button>
   <button data-v="smallboat" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">Small Boat</button>
   <button data-v="kayak" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">Kayak</button>
   <button data-v="pedestrian" class="vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]">Walk</button>
+</div>
+<div class="bg-zinc-50 border rounded-xl p-2">
+<div class="flex justify-between text-[11px] font-bold"><span>Lake: <span id="lakeLevelLabel">504.32</span> ft</span><span id="deltaLabel">+0.00ft</span></div>
+<input id="lakeSlider" type="range" min="502" max="506" step="0.1" value="504.32" class="w-full">
+<label class="text-[11px]"><input id="includeMarginal" type="checkbox" checked> Include marginal</label>
+<span id="routeStats" class="ml-2 text-[11px] font-bold"></span>
+</div>
 </div>
 <div class="flex flex-1 min-h-0 flex-col lg:flex-row">
   <div class="flex-1 relative bg-[#aad3df] min-h-[45vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-3 left-3 z-[400] bg-black/80 text-white text-[11px] px-3 py-1.5 rounded-full"></div></div>
@@ -421,8 +429,14 @@ function twoOptSwapFixed(r,i,k){return r.slice(0,i).concat(r.slice(i,k+1).revers
 function twoOpt(r){if(r.length<4)return r;let best=r.slice();let bestDist=totalDist(best);let improved=true,iter=0;while(improved&&iter<80){improved=false;for(let i=1;i<best.length-2;i++){for(let k=i+1;k<best.length-1;k++){let nr=twoOptSwapFixed(best,i,k);let nd=totalDist(nr);if(nd<bestDist-0.001){best=nr;bestDist=nd;improved=true;}}}iter++;}return best;}
 function shortestRoute(b){if(b.length<=2)return b;return twoOpt(nearestNeighborOrder(b));}
 function passes(b,v){if(v==='all')return true;return b.vessels[v]===true;}
+
+const FULL_LEVEL=504.32; let lakeLevel=504.32, includeMarginal=true;
+const REQ={pwc:{comfortable:6,marginal:4.5,label:"PWC"},smallboat:{comfortable:6,marginal:4,label:"Small Boat"},kayak:{comfortable:3,marginal:1.5,label:"Kayak"},all:{comfortable:0,marginal:0,label:"All 20"},car:{comfortable:6,marginal:4,label:"Car"}};
+function adjClearance(b){return b+(FULL_LEVEL-lakeLevel);}
+function statusFor(br){if(vessel==="all")return "pass";const adj=adjClearance(br.base);const req=REQ[vessel]||REQ.all;if(adj>=req.comfortable)return "pass";if(adj>=req.marginal)return "marginal";return "fail";}
+
 function dotColor(b,v){if(v==='all')return b.id===7?'#a855f7':'#16a34a';return b.vessels[v]?'#16a34a':'#ef4444';}
-function filtered(){let f=BRIDGES.filter(b=>{const s=(b.name+' '+b.zone+' '+b.type).toLowerCase();return (!term||s.includes(term))&&passes(b,vessel);});return shortestRoute(f);}
+function filtered(){let f=BRIDGES.filter(b=>{const termOk=!term||(b.name+' '+b.zone+' '+b.type).toLowerCase().includes(term);if(!termOk)return false;const s=statusFor(b);if(s==="pass")return true;if(s==="marginal"&&includeMarginal)return true;return vessel==="all";});return shortestRoute(f);}
 function render(){const f=filtered();if(map){markers.forEach(m=>{try{map.removeLayer(m)}catch(e){}});markers.clear();if(routeLine)try{map.removeLayer(routeLine)}catch(e){}if(f.length>1){const latlngs=f.map(b=>[b.lat,b.lng]);routeLine=L.polyline(latlngs,{color:'#2563eb',weight:5,opacity:0.9}).addTo(map);}f.forEach((b,idx)=>{const icon=L.divIcon({html:`<div style="background:${dotColor(b,vessel)};width:30px;height:30px;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.5);display:grid;place-items:center;color:white;font-weight:900;font-size:13px">${idx+1}</div>`,iconSize:[30,30],iconAnchor:[15,15]});const mk=L.marker([b.lat,b.lng],{icon}).addTo(map).bindPopup(`<b>#${idx+1} ${b.name}</b><br>${b.zone} • ${b.clearance}<br>${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}`);mk.on('click',()=>openDetail(b.id));markers.set(b.id,mk);});if(f.length>0){try{map.fitBounds(L.latLngBounds(f.map(b=>[b.lat,b.lng])).pad(0.18));}catch(e){}}}let dist=totalDist(f);document.getElementById('routeInfo').textContent=`${f.length} stops • ${dist.toFixed(1)} mi shortest • ${vessel.toUpperCase()}`;document.getElementById('countBadge').textContent=`${f.length} / 20 • ${dist.toFixed(1)} mi`;document.getElementById('list').innerHTML=f.map((b,idx)=>`
 <div class="bg-white rounded-[14px] border overflow-hidden shadow-sm cursor-pointer hover:shadow-md" onclick="openDetail(${b.id})">
   <div class="flex gap-0">
@@ -439,6 +453,8 @@ function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const id
 function closeDetail(){document.getElementById('detail').classList.add('hidden');}
 window.openDetail=openDetail;window.closeDetail=closeDetail;
 document.getElementById('search').addEventListener('input',e=>{term=e.target.value.toLowerCase();render();});
+ document.getElementById('lakeSlider')?.addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);document.getElementById('deltaLabel').textContent=(FULL_LEVEL-lakeLevel>=0?'+'+(FULL_LEVEL-lakeLevel).toFixed(2):(FULL_LEVEL-lakeLevel).toFixed(2))+'ft';render();});
+ document.getElementById('includeMarginal')?.addEventListener('change',e=>{includeMarginal=e.target.checked;render();});
 document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-3 h-8 rounded-full bg-zinc-100 font-bold text-[11px]');btn.className='vBtn px-3 h-8 rounded-full bg-black text-white font-bold text-[11px]';vessel=btn.dataset.v;render();});});
 document.getElementById('gpxBtn').addEventListener('click',()=>{const f=filtered();let gpx=`<?xml version="1.0"?><gpx><name>Winni ${vessel} ${f.length} stops ${totalDist(f).toFixed(1)} mi shortest v23</name>`;f.forEach(b=>{gpx+=`<wpt lat="${b.lat}" lon="${b.lng}"><name>${b.id}. ${b.name}</name><desc>${b.clearance} ${b.zone}</desc></wpt>`;});gpx+=`</gpx>`;const blob=new Blob([gpx],{type:'application/gpx+xml'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`winnipesaukee_${vessel}_shortest_v23.gpx`;a.click();});
 document.getElementById('detail').addEventListener('click',e=>{if(e.target.id==='detail')closeDetail();});

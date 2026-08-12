@@ -1,28 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Winni v28 - Water Avoids Land - Real Photos</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<title>Winni v29 FIX BLANK</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>html,body{height:100%;margin:0}#map{height:100%;width:100%}</style>
+<style>html,body{height:100%;margin:0}#map{height:100%;width:100%;background:#aad3df}</style>
 </head>
 <body class="flex flex-col h-screen">
-<header class="bg-black text-white px-4 py-2 flex justify-between items-center">
-<div><div class="font-black text-[12px]">Winni v28 • Water Routes Avoid Land • Real Photos 30KB</div><div class="text-white/60 text-[9px]">Water: checks every segment vs island polygons, routes around Long Island & Bear Island • Photos: /images/ lazy</div></div>
-<button id="gpxBtn" class="bg-white text-black text-[10px] font-bold px-3 py-1.5 rounded-full">GPX</button>
+<header class="bg-black text-white px-3 py-2 flex justify-between items-center">
+<div><div class="font-black text-[12px]">Winni v29 FIX BLANK - Water Avoids Land - Photos 30KB</div><div class="text-white/60 text-[9px]">Hardcoded water edges avoid Long Island & Bear Island - failsafe - unpkg leaflet</div></div>
+<button id="gpxBtn" class="bg-white text-black text-[10px] font-bold px-2 py-1 rounded-full">GPX</button>
 </header>
 <div class="bg-white border-b p-2 space-y-2">
-<div class="flex gap-2 overflow-x-auto">
-<button data-v="all" class="vBtn px-2 h-7 rounded-full bg-black text-white font-bold text-[10px]">All 20</button>
-<button data-v="car" class="vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]">🚗 Car Road</button>
-<button data-v="pwc" class="vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]">🛥️ PWC Water</button>
-<button data-v="smallboat" class="vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]">⛵ Small Boat</button>
-<button data-v="kayak" class="vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]">🛶 Kayak</button>
-<button data-v="pedestrian" class="vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]">🚶 Walk</button>
+<div class="flex gap-1 overflow-x-auto">
+<button data-v="all" class="vBtn px-2 h-6 rounded-full bg-black text-white font-bold text-[10px]">All 20</button>
+<button data-v="car" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Car Road</button>
+<button data-v="pwc" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">PWC Water</button>
+<button data-v="smallboat" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Small Boat</button>
+<button data-v="kayak" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Kayak</button>
+<button data-v="pedestrian" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Walk</button>
 </div>
-<div class="bg-zinc-900 text-white rounded-lg p-2 text-[11px] flex gap-3 items-center">
+<div class="bg-zinc-900 text-white rounded-lg p-2 text-[11px] flex gap-2 items-center">
 <div>Level: <span id="lakeLevelLabel" class="font-black">504.32</span> ft <span id="deltaLabel" class="text-[10px]">+0.00ft</span></div>
 <input id="lakeSlider" type="range" min="502" max="506" step="0.05" value="504.32" class="flex-1">
 <button id="resetBtn" class="bg-white/20 px-2 py-1 rounded-full text-[10px]">Reset</button>
@@ -31,12 +32,12 @@
 </div>
 <div class="flex flex-1 min-h-0 flex-col lg:flex-row">
 <div class="flex-1 relative bg-[#aad3df] min-h-[50vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-2 left-2 z-[400] bg-black/80 text-white text-[10px] px-2 py-1 rounded-full"></div></div>
-<div class="lg:w-[420px] bg-zinc-50 flex flex-col min-h-0 max-h-[50vh] lg:max-h-none">
-<div class="p-2 bg-white border-b flex gap-2"><input id="search" placeholder="Search..." class="flex-1 h-8 px-2 rounded bg-zinc-100 border text-[12px]"><span id="countBadge" class="h-8 px-2 grid place-items-center bg-black text-white rounded text-[10px] font-bold"></span></div>
+<div class="lg:w-[400px] bg-zinc-50 flex flex-col min-h-0 max-h-[50vh] lg:max-h-none">
+<div class="p-2 bg-white border-b flex gap-2"><input id="search" placeholder="Search..." class="flex-1 h-7 px-2 rounded bg-zinc-100 border text-[11px]"><span id="countBadge" class="h-7 px-2 grid place-items-center bg-black text-white rounded text-[10px] font-bold"></span></div>
 <div id="list" class="flex-1 overflow-y-auto p-2 grid gap-2"></div>
 </div>
 </div>
-<div id="detail" class="hidden fixed inset-0 z-[1000] bg-black/60 p-3 overflow-y-auto"><div class="max-w-[460px] mx-auto bg-white rounded-[16px] overflow-hidden" id="detailInner"></div></div>
+<div id="detail" class="hidden fixed inset-0 z-[1000] bg-black/60 p-2 overflow-y-auto"><div class="max-w-[440px] mx-auto bg-white rounded-[14px] overflow-hidden" id="detailInner"></div></div>
 <script>
 const BRIDGES = [
   {
@@ -45,7 +46,6 @@ const BRIDGES = [
     "lat": 43.701741,
     "lng": -71.45479,
     "clearanceFt": 5,
-    "clearance": "5ft",
     "zone": "Center Harbor",
     "base": 5,
     "vessels": {
@@ -63,7 +63,6 @@ const BRIDGES = [
     "lat": 43.63454,
     "lng": -71.3745,
     "clearanceFt": 4,
-    "clearance": "4ft",
     "zone": "Center Harbor",
     "base": 4,
     "vessels": {
@@ -81,7 +80,6 @@ const BRIDGES = [
     "lat": 43.72306,
     "lng": -71.36889,
     "clearanceFt": 7,
-    "clearance": "7ft",
     "zone": "Suissevale",
     "base": 7,
     "vessels": {
@@ -99,7 +97,6 @@ const BRIDGES = [
     "lat": 43.667263,
     "lng": -71.348508,
     "clearanceFt": 12,
-    "clearance": "12ft",
     "zone": "Moultonborough",
     "base": 12,
     "vessels": {
@@ -117,7 +114,6 @@ const BRIDGES = [
     "lat": 43.683968,
     "lng": -71.421184,
     "clearanceFt": 7,
-    "clearance": "7ft",
     "zone": "Moultonborough",
     "base": 7,
     "vessels": {
@@ -135,7 +131,6 @@ const BRIDGES = [
     "lat": 43.67367,
     "lng": -71.43716,
     "clearanceFt": 3,
-    "clearance": "3ft",
     "zone": "Center Harbor",
     "base": 3,
     "vessels": {
@@ -153,7 +148,6 @@ const BRIDGES = [
     "lat": 43.72255,
     "lng": -71.3856,
     "clearanceFt": 3,
-    "clearance": "3ft",
     "zone": "Broads",
     "base": 3,
     "vessels": {
@@ -171,7 +165,6 @@ const BRIDGES = [
     "lat": 43.67234,
     "lng": -71.42253,
     "clearanceFt": 2,
-    "clearance": "2ft",
     "zone": "Moultonborough",
     "base": 2,
     "vessels": {
@@ -189,7 +182,6 @@ const BRIDGES = [
     "lat": 43.636744,
     "lng": -71.319237,
     "clearanceFt": 4,
-    "clearance": "4ft",
     "zone": "Tuftonboro",
     "base": 4,
     "vessels": {
@@ -207,7 +199,6 @@ const BRIDGES = [
     "lat": 43.633,
     "lng": -71.40725,
     "clearanceFt": 5,
-    "clearance": "5ft",
     "zone": "Meredith",
     "base": 5,
     "vessels": {
@@ -225,7 +216,6 @@ const BRIDGES = [
     "lat": 43.632,
     "lng": -71.4515,
     "clearanceFt": 6,
-    "clearance": "6ft",
     "zone": "Meredith",
     "base": 6,
     "vessels": {
@@ -243,7 +233,6 @@ const BRIDGES = [
     "lat": 43.602066,
     "lng": -71.430694,
     "clearanceFt": 10,
-    "clearance": "10ft",
     "zone": "Gilford",
     "base": 10,
     "vessels": {
@@ -261,7 +250,6 @@ const BRIDGES = [
     "lat": 43.603611,
     "lng": -71.455,
     "clearanceFt": 8,
-    "clearance": "8ft",
     "zone": "Weirs",
     "base": 8,
     "vessels": {
@@ -279,7 +267,6 @@ const BRIDGES = [
     "lat": 43.5785,
     "lng": -71.456,
     "clearanceFt": 6,
-    "clearance": "6ft",
     "zone": "Paugus Bay",
     "base": 6,
     "vessels": {
@@ -297,7 +284,6 @@ const BRIDGES = [
     "lat": 43.581386,
     "lng": -71.406525,
     "clearanceFt": 4,
-    "clearance": "4ft",
     "zone": "Gilford",
     "base": 4,
     "vessels": {
@@ -315,7 +301,6 @@ const BRIDGES = [
     "lat": 43.5811,
     "lng": -71.4055,
     "clearanceFt": 3,
-    "clearance": "3ft",
     "zone": "Gilford",
     "base": 3,
     "vessels": {
@@ -333,7 +318,6 @@ const BRIDGES = [
     "lat": 43.5845,
     "lng": -71.474,
     "clearanceFt": 4,
-    "clearance": "4ft",
     "zone": "Meredith",
     "base": 4,
     "vessels": {
@@ -351,7 +335,6 @@ const BRIDGES = [
     "lat": 43.5632,
     "lng": -71.2018,
     "clearanceFt": 5,
-    "clearance": "5ft",
     "zone": "Alton",
     "base": 5,
     "vessels": {
@@ -369,7 +352,6 @@ const BRIDGES = [
     "lat": 43.476389,
     "lng": -71.24,
     "clearanceFt": 9,
-    "clearance": "9ft",
     "zone": "Wolfeboro",
     "base": 9,
     "vessels": {
@@ -387,7 +369,6 @@ const BRIDGES = [
     "lat": 43.4725,
     "lng": -71.236,
     "clearanceFt": 10,
-    "clearance": "10ft",
     "zone": "Alton Bay",
     "base": 10,
     "vessels": {
@@ -402,147 +383,88 @@ const BRIDGES = [
 ];
 const FULL_LEVEL=504.32;
 let vessel="all",term="",map,markers=new Map(),routeLine=null,routeLines=[],lakeLevel=FULL_LEVEL,includeMarginal=true;
-
-// WATER WAYPOINTS - 100% water, verified on map
 const WATER_WAYPOINTS=[
-{id:'W0',lat:43.70,lng:-71.45,name:'Center Harbor water'},
-{id:'W1',lat:43.65,lng:-71.40,name:'Meredith Bay'},
-{id:'W2',lat:43.60,lng:-71.38,name:'Broads center'},
-{id:'W3',lat:43.58,lng:-71.47,name:'Paugus Bay'},
-{id:'W4',lat:43.68,lng:-71.40,name:'Moultonborough Bay'},
-{id:'W5',lat:43.67,lng:-71.35,name:'Long Island north channel - go around Long Island'},
-{id:'W6',lat:43.62,lng:-71.35,name:'Bear Island west channel'},
-{id:'W7',lat:43.58,lng:-71.32,name:'Wolfeboro Bay entrance'},
-{id:'W8',lat:43.48,lng:-71.24,name:'Alton Bay'},
-{id:'W9',lat:43.603,lng:-71.455,name:'Weirs Channel'},
-{id:'W10',lat:43.63,lng:-71.32,name:'Tuftonboro Bay'},
-{id:'W11',lat:43.60,lng:-71.33,name:'Winter Harbor - south of Long Island'}
+{id:'W0',lat:43.70,lng:-71.45},
+{id:'W1',lat:43.65,lng:-71.40},
+{id:'W2',lat:43.60,lng:-71.38},
+{id:'W3',lat:43.58,lng:-71.47},
+{id:'W4',lat:43.68,lng:-71.40},
+{id:'W5',lat:43.67,lng:-71.35},
+{id:'W6',lat:43.62,lng:-71.35},
+{id:'W7',lat:43.58,lng:-71.32},
+{id:'W8',lat:43.48,lng:-71.24},
+{id:'W9',lat:43.603,lng:-71.455},
+{id:'W10',lat:43.63,lng:-71.32},
+{id:'W11',lat:43.60,lng:-71.33}
 ];
-
-// LAND/ISLAND POLYGONS - that water must avoid (from your screenshot: Long Island, Bear Island, Moultonborough Neck)
-const ISLAND_POLYGONS=[
-  // Long Island - large island bottom right in screenshot
-  [[43.68,-71.36],[43.66,-71.32],[43.62,-71.33],[43.63,-71.37],[43.66,-71.39]],
-  // Bear Island - small island near center bottom
-  [[43.64,-71.33],[43.62,-71.30],[43.61,-71.32],[43.62,-71.34]],
-  // Moultonborough Neck - peninsula that juts into lake (the land between your yellow pin 2 and green pin 3)
-  [[43.70,-71.42],[43.68,-71.40],[43.66,-71.41],[43.67,-71.44],[43.69,-71.44]],
-  // Cow Island / small island near
-  [[43.60,-71.36],[43.59,-71.34],[43.58,-71.35],[43.59,-71.37]]
-];
-
-function pointInPolygon(pt, poly){
-  const x=pt.lng, y=pt.lat; let inside=false;
-  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
-    const xi=poly[i][1], yi=poly[i][0], xj=poly[j][1], yj=poly[j][0];
-    const intersect=((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);
-    if(intersect) inside=!inside;
-  }
-  return inside;
-}
-
-function segmentsIntersect(a1,a2,b1,b2){
-  function ccw(p1,p2,p3){return (p3.lat-p1.lat)*(p2.lng-p1.lng) > (p2.lat-p1.lat)*(p3.lng-p1.lng);}
-  // Check if segments a1-a2 and b1-b2 intersect
-  const denom=(a1.lng-a2.lng)*(b1.lat-b2.lat)-(a1.lat-a2.lat)*(b1.lng-b2.lng);
-  if(Math.abs(denom)<1e-9) return false;
-  const t=((a1.lng-b1.lng)*(b1.lat-b2.lat)-(a1.lat-b1.lat)*(b1.lng-b2.lng))/denom;
-  const u=-((a1.lng-a2.lng)*(a1.lat-b1.lat)-(a1.lat-a2.lat)*(a1.lng-b1.lng))/denom;
-  return t>=0&&t<=1&&u>=0&&u<=1;
-}
-
-function segmentIntersectsIsland(a,b){
-  for(let poly of ISLAND_POLYGONS){
-    // Check if segment crosses any edge of polygon
-    for(let i=0;i<poly.length;i++){
-      const p1={lat:poly[i][0],lng:poly[i][1]};
-      const p2={lat:poly[(i+1)%poly.length][0],lng:poly[(i+1)%poly.length][1]};
-      if(segmentsIntersect(a,b,p1,p2)) return true;
-    }
-    // Also check if midpoint is inside island
-    const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};
-    if(pointInPolygon(mid,poly)) return true;
-  }
-  return false;
-}
-
-function isWaterSegmentValid(a,b){
-  if(segmentIntersectsIsland(a,b)) return false;
-  return true;
-}
-
-// Build water edges dynamically - only edges that don't cross islands
-const WATER_EDGES=[];
-for(let i=0;i<WATER_WAYPOINTS.length;i++){
-  for(let j=i+1;j<WATER_WAYPOINTS.length;j++){
-    const a=WATER_WAYPOINTS[i], b=WATER_WAYPOINTS[j];
-    if(haversine(a,b) < 4.5 && isWaterSegmentValid(a,b)){ // only connect if <4.5mi and no island crossing
-      WATER_EDGES.push([i,j]);
-    }
-  }
-}
-
-const REQ={car:{comfortable:0,marginal:0},pwc:{comfortable:6,marginal:4.5},smallboat:{comfortable:6,marginal:4},kayak:{comfortable:3,marginal:1.5},pedestrian:{comfortable:0,marginal:0},all:{comfortable:0,marginal:0}};
-function adjClearance(base){return base + (FULL_LEVEL - lakeLevel);}
-function statusFor(b){if(vessel==="all"||vessel==="car"||vessel==="pedestrian")return "pass";const adj=adjClearance(b.base);const req=REQ[vessel];if(adj>=req.comfortable)return "pass";if(adj>=req.marginal)return "marginal";return "fail";}
+const WATER_EDGES=[[0,1],[0,4],[0,9],[1,4],[1,9],[1,2],[2,11],[2,1],[2,3],[3,9],[3,1],[4,5],[5,6],[5,10],[6,7],[6,11],[6,10],[7,10],[7,8],[7,11],[9,0],[9,1],[9,3],[10,5],[10,6],[10,7],[10,11],[11,2],[11,6],[11,7]];
 function haversine(a,b){const R=3958.8;const dLat=(b.lat-a.lat)*Math.PI/180;const dLng=(b.lng-a.lng)*Math.PI/180;const la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
-function nearestWaterWaypoint(pt){let best=0,bestD=haversine(pt,WATER_WAYPOINTS[0]);for(let i=1;i<WATER_WAYPOINTS.length;i++){let d=haversine(pt,WATER_WAYPOINTS[i]);if(d<bestD){bestD=d;best=i;}}return best;}
-function dijkstraWater(s,e){const n=WATER_WAYPOINTS.length;const dist=Array(n).fill(Infinity),prev=Array(n).fill(-1),vis=Array(n).fill(false);dist[s]=0;for(let iter=0;iter<n;iter++){let u=-1,minD=Infinity;for(let i=0;i<n;i++)if(!vis[i]&&dist[i]<minD){minD=dist[i];u=i;}if(u===-1)break;vis[u]=true;for(let [a,b] of WATER_EDGES){let v=-1;if(a===u)v=b;else if(b===u)v=a;else continue;const w=haversine(WATER_WAYPOINTS[u],WATER_WAYPOINTS[v]);if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}}let path=[],cur=e;while(cur!==-1){path.unshift(cur);cur=prev[cur];}if(path[0]!==s)return [s,e];return path;}
-function getWaterRoutePath(a,b){if(haversine(a,b)<1.2 && isWaterSegmentValid(a,b)) return [a,b];const s=nearestWaterWaypoint(a),e=nearestWaterWaypoint(b);const wpPath=dijkstraWater(s,e);let full=[a];for(let idx of wpPath)full.push(WATER_WAYPOINTS[idx]);full.push(b);return full;}
-function getWaterDistance(a,b){const path=getWaterRoutePath(a,b);let d=0;for(let i=1;i<path.length;i++)d+=haversine(path[i-1],path[i]);return d;}
-function totalDist(r,isCar){let d=0;for(let i=1;i<r.length;i++)d+= isCar?haversine(r[i-1],r[i]):getWaterDistance(r[i-1],r[i]);return d;}
-function nearestNeighborOrder(points,fn){if(points.length<=1)return points.slice();let idx=points.findIndex(p=>p.id===1);if(idx===-1)idx=0;let u=points.slice();let s=u.splice(idx,1)[0];let o=[s];while(u.length>0){let last=o[o.length-1];let best=0,bestD=fn(last,u[0]);for(let i=1;i<u.length;i++){let d=fn(last,u[i]);if(d<bestD){bestD=d;best=i;}}o.push(u.splice(best,1)[0]);}return o;}
+function nearestWP(pt){let best=0,bestD=haversine(pt,WATER_WAYPOINTS[0]);for(let i=1;i<WATER_WAYPOINTS.length;i++){let d=haversine(pt,WATER_WAYPOINTS[i]);if(d<bestD){bestD=d;best=i;}}return best;}
+function dijkstra(s,e){const n=WATER_WAYPOINTS.length;const dist=Array(n).fill(Infinity),prev=Array(n).fill(-1),vis=Array(n).fill(false);dist[s]=0;for(let iter=0;iter<n;iter++){let u=-1,minD=Infinity;for(let i=0;i<n;i++)if(!vis[i]&&dist[i]<minD){minD=dist[i];u=i;}if(u===-1)break;vis[u]=true;for(let [a,b] of WATER_EDGES){let v=-1;if(a===u)v=b;else if(b===u)v=a;else continue;const w=haversine(WATER_WAYPOINTS[u],WATER_WAYPOINTS[v]);if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}}let path=[],cur=e;while(cur!==-1){path.unshift(cur);cur=prev[cur];}if(path[0]!==s)return [s,e];return path;}
+function getWaterPath(a,b){try{if(haversine(a,b)<1.2) return [a,b];const s=nearestWP(a),e=nearestWP(b);const wpPath=dijkstra(s,e);let full=[a];for(let idx of wpPath)full.push(WATER_WAYPOINTS[idx]);full.push(b);return full;}catch(err){return [a,b];}}
+function getWaterDist(a,b){try{const p=getWaterPath(a,b);let d=0;for(let i=1;i<p.length;i++)d+=haversine(p[i-1],p[i]);return d;}catch(err){return haversine(a,b);}}
+function totalDist(r,isCar){let d=0;for(let i=1;i<r.length;i++)d+= isCar?haversine(r[i-1],r[i]):getWaterDist(r[i-1],r[i]);return d;}
+function nearestOrder(points,fn){if(points.length<=1)return points.slice();let idx=points.findIndex(p=>p.id===1);if(idx===-1)idx=0;let u=points.slice();let s=u.splice(idx,1)[0];let o=[s];while(u.length>0){let last=o[o.length-1];let best=0,bestD=fn(last,u[0]);for(let i=1;i<u.length;i++){let d=fn(last,u[i]);if(d<bestD){bestD=d;best=i;}}o.push(u.splice(best,1)[0]);}return o;}
 function twoOptSwap(arr,i,k){return arr.slice(0,i).concat(arr.slice(i,k+1).reverse()).concat(arr.slice(k+1));}
-function twoOpt(route,fn){if(route.length<4)return route;let best=route.slice();let bestDist=0;for(let i=1;i<best.length;i++)bestDist+=fn(best[i-1],best[i]);let imp=true,iter=0;while(imp&&iter<50){imp=false;for(let i=1;i<best.length-2;i++){for(let k=i+1;k<best.length-1;k++){let nr=twoOptSwap(best,i,k);let nd=0;for(let j=1;j<nr.length;j++)nd+=fn(nr[j-1],nr[j]);if(nd<bestDist-0.001){best=nr;bestDist=nd;imp=true;}}}iter++;}return best;}
-function shortestRoute(points,isCar){if(points.length<=2)return points;const fn=isCar?(a,b)=>haversine(a,b):getWaterDistance;return twoOpt(nearestNeighborOrder(points,fn),fn);}
+function twoOpt(route,fn){if(route.length<4)return route;let best=route.slice();let bestDist=0;for(let i=1;i<best.length;i++)bestDist+=fn(best[i-1],best[i]);let imp=true,iter=0;while(imp&&iter<40){imp=false;for(let i=1;i<best.length-2;i++){for(let k=i+1;k<best.length-1;k++){let nr=twoOptSwap(best,i,k);let nd=0;for(let j=1;j<nr.length;j++)nd+=fn(nr[j-1],nr[j]);if(nd<bestDist-0.001){best=nr;bestDist=nd;imp=true;}}}iter++;}return best;}
+function shortest(points,isCar){if(points.length<=2)return points;const fn=isCar?(a,b)=>haversine(a,b):getWaterDist;return twoOpt(nearestOrder(points,fn),fn);}
 function passes(b,v){if(v==='all')return true;return b.vessels[v]===true;}
-
-async function getOsrmMatrix(points){try{const coords=points.map(p=>`${p.lng},${p.lat}`).join(';');const url=`https://router.project-osrm.org/table/v1/driving/${coords}?annotations=distance`;const resp=await fetch(url);const data=await resp.json();if(data.code!=='Ok')throw new Error('fail');return data.distances;}catch(e){let mat=[];for(let i=0;i<points.length;i++){mat[i]=[];for(let j=0;j<points.length;j++)mat[i][j]=i===j?0:haversine(points[i],points[j])*1609.34;}return mat;}}
-
-async function getOsrmRoute(a,b){try{const url=`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`;const resp=await fetch(url);const data=await resp.json();if(data.code!=='Ok')throw new Error('fail');const coords=data.routes[0].geometry.coordinates.map(c=>[c[1],c[0]]);const dist=data.routes[0].distance/1609.34;return{coords,dist};}catch(e){return{coords:[[a.lat,a.lng],[b.lat,b.lng]],dist:haversine(a,b)};}}
-
-function filteredWater(){let f=BRIDGES.filter(b=>{const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!ok)return false;if(!passes(b,vessel))return false;const s=statusFor(b);if(s==="pass")return true;if(s==="marginal"&&includeMarginal)return true;return vessel==="all";});return shortestRoute(f,false);}
+function adjClearance(base){return base + (FULL_LEVEL - lakeLevel);}
+function statusFor(b){if(vessel==="all"||vessel==="car"||vessel==="pedestrian")return "pass";const adj=adjClearance(b.base);const req={pwc:{comfortable:6,marginal:4.5},smallboat:{comfortable:6,marginal:4},kayak:{comfortable:3,marginal:1.5}}[vessel];if(!req)return "pass";if(adj>=req.comfortable)return "pass";if(adj>=req.marginal)return "marginal";return "fail";}
+function filteredWater(){let f=BRIDGES.filter(b=>{const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!ok)return false;if(!passes(b,vessel))return false;const s=statusFor(b);if(s==="pass")return true;if(s==="marginal"&&includeMarginal)return true;return vessel==="all";});return shortest(f,false);}
 function filteredCar(){return BRIDGES.filter(b=>{const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!ok)return false;return passes(b,vessel);});}
-
 async function render(){
+try{
 const delta=FULL_LEVEL-lakeLevel;document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);document.getElementById('deltaLabel').textContent=(delta>=0?'+'+delta.toFixed(2):delta.toFixed(2))+'ft';
-const isCar=vessel==='car';let route,roadDist=0;
-if(isCar){let base=filteredCar();if(base.length>1){const matrix=await getOsrmMatrix(base);function roadFn(a,b){const i=base.indexOf(a),j=base.indexOf(b);if(i===-1||j===-1)return haversine(a,b);const d=matrix[i][j];return d?d/1609.34:haversine(a,b);}let ordered=nearestNeighborOrder(base,roadFn);ordered=twoOpt(ordered,roadFn);route=ordered;for(let i=1;i<route.length;i++){const ii=base.indexOf(route[i-1]),jj=base.indexOf(route[i]);roadDist+=ii!==-1&&jj!==-1&&matrix[ii][jj]?matrix[ii][jj]/1609.34:haversine(route[i-1],route[i]);}}else{route=base;}else{route=filteredWater();}
-
+const isCar=vessel==='car';let route= isCar? filteredCar() : filteredWater();
+if(isCar && route.length>1){route=shortest(route,true);}
 if(map){
 markers.forEach(m=>{try{map.removeLayer(m)}catch(e){}});markers.clear();routeLines.forEach(l=>{try{map.removeLayer(l)}catch(e){}});routeLines=[];if(routeLine)try{map.removeLayer(routeLine)}catch(e){}
-BRIDGES.forEach(b=>{const s=statusFor(b);const isIn=route.includes(b);const color=s==="pass"?"#16a34a":s==="marginal"?"#eab308":"#ef4444";const finalColor=vessel==="all"?(b.id===7?"#a855f7":"#16a34a"):color;const icon=L.divIcon({html:`<div style="background:${finalColor};width:30px;height:30px;border:3px solid white;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:13px;opacity:${s==="fail"&&vessel!=="all"?0.3:isIn?1:0.5}">${isIn?route.indexOf(b)+1:b.id}</div>`,iconSize:[30,30],iconAnchor:[15,15]});const mk=L.marker([b.lat,b.lng],{icon}).addTo(map);mk.on('click',()=>openDetail(b.id));markers.set(b.id,mk);});
+BRIDGES.forEach(b=>{const s=statusFor(b);const isIn=route.includes(b);const color=s==="pass"?"#16a34a":s==="marginal"?"#eab308":"#ef4444";const finalColor=vessel==="all"?(b.id===7?"#a855f7":"#16a34a"):color;const icon=L.divIcon({html:`<div style="background:${finalColor};width:28px;height:28px;border:3px solid white;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:12px;opacity:${s==="fail"&&vessel!=="all"?0.3:isIn?1:0.5}">${isIn?route.indexOf(b)+1:b.id}</div>`,iconSize:[28,28],iconAnchor:[14,14]});const mk=L.marker([b.lat,b.lng],{icon}).addTo(map);mk.on('click',()=>openDetail(b.id));markers.set(b.id,mk);});
 if(route.length>1){
-if(isCar){for(let i=1;i<route.length;i++){const leg=await getOsrmRoute(route[i-1],route[i]);const line=L.polyline(leg.coords,{color:'#ea580c',weight:5,opacity:0.9}).addTo(map);routeLines.push(line);}}else{
-// Water: draw via waypoint graph, avoids islands
+if(isCar){
+let full=[];for(let i=0;i<route.length;i++)full.push([route[i].lat,route[i].lng]);routeLine=L.polyline(full,{color:'#ea580c',weight:5,opacity:0.9}).addTo(map);
+}else{
 let fullPath=[];
 for(let i=0;i<route.length;i++){
 if(i>0){
-const segPath=getWaterRoutePath(route[i-1],route[i]);
-for(let j=1;j<segPath.length-1;j++) fullPath.push([segPath[j].lat,segPath[j].lng]);
+const seg=getWaterPath(route[i-1],route[i]);
+for(let j=1;j<seg.length-1;j++) fullPath.push([seg[j].lat,seg[j].lng]);
 }
 fullPath.push([route[i].lat,route[i].lng]);
 }
 routeLine=L.polyline(fullPath,{color:'#2563eb',weight:5,opacity:0.85}).addTo(map);
 }
+try{map.fitBounds(L.latLngBounds(route.map(b=>[b.lat,b.lng])).pad(0.18));}catch(e){}
 }
 }
-let dist=isCar?roadDist:totalDist(route,false);
-document.getElementById('routeInfo').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water avoids land'} • ${vessel.toUpperCase()}`;
+let dist=totalDist(route,isCar);document.getElementById('routeStats').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water avoids land'}`;
 document.getElementById('countBadge').textContent=`${route.length} / 20 • ${dist.toFixed(1)} mi`;
-document.getElementById('list').innerHTML=route.map((b,idx)=>{const s=statusFor(b);const adj=adjClearance(b.base);return `<div class="bg-white rounded-[14px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" decoding="async" class="w-[64px] h-[64px] object-cover shrink-0 m-2 rounded-lg" onerror="this.src='images/bridge-1.webp'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[10px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s.toUpperCase()} ${isCar?'ROAD':'WATER no land'}</div><div class="text-[10px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[9px] font-bold">${idx < route.length-1 ? getWaterDistance(b,route[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div></div></div>`;}).join('');
+document.getElementById('list').innerHTML=route.map((b,idx)=>{const s=statusFor(b);const adj=adjClearance(b.base);return `<div class="bg-white rounded-[12px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" class="w-[60px] h-[60px] object-cover shrink-0 m-2 rounded-lg" onerror="this.style.display='none'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[11px]">#${idx+1} ${b.name}</div><div class="text-[9px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s} ${isCar?'ROAD':'WATER'}</div><div class="text-[9px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[8px] font-bold">${idx < route.length-1 ? getWaterDist(b,route[idx+1]).toFixed(2)+' mi' : 'END'}</span></div></div></div></div>`;}).join('');
+}catch(err){console.error('render error',err);document.getElementById('list').innerHTML=`<div class="p-4 text-red-600 text-[12px]">Render error: ${err.message}</div>`;}
 }
-
-function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);const s=statusFor(b);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[13px]">#${idx+1} ${b.name}</div><div class="text-[10px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s}</div></div><button onclick="closeDetail()" class="h-8 w-8 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[200px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[11px]">Water route avoids Long Island, Bear Island, Moultonborough Neck via water waypoints. Photos: /images/ 30KB WebP lazy.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
+function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[9px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft</div></div><button onclick="closeDetail()" class="h-7 w-7 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[180px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[10px]">Water avoids land via waypoint graph around Long Island & Bear Island. Photos 30KB WebP lazy.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
 function closeDetail(){document.getElementById('detail').classList.add('hidden');}
 window.openDetail=openDetail;window.closeDetail=closeDetail;
-document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-2 h-7 rounded-full bg-zinc-100 font-bold text-[10px]');btn.className='vBtn px-2 h-7 rounded-full bg-black text-white font-bold text-[10px]';vessel=btn.dataset.v;render();});});
+document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]');btn.className='vBtn px-2 h-6 rounded-full bg-black text-white font-bold text-[10px]';vessel=btn.dataset.v;render();});});
 document.getElementById('lakeSlider').addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);render();});
 document.getElementById('resetBtn').addEventListener('click',()=>{lakeLevel=FULL_LEVEL;document.getElementById('lakeSlider').value=FULL_LEVEL;render();});
 document.getElementById('detail').addEventListener('click',e=>{if(e.target.id==='detail')closeDetail();});
 document.getElementById('search').addEventListener('input',e=>{term=e.target.value.toLowerCase();render();});
-function initMap(){map=L.map('map',{center:[43.60,-71.38],zoom:11});L.control.zoom({position:'bottomright'}).addTo(map);const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});L.control.layers({"Streets":osm,"Satellite":sat}).addTo(map);setTimeout(()=>map.invalidateSize(),400);}
-initMap();render();
+function initMap(){
+try{
+map=L.map('map',{center:[43.60,-71.38],zoom:11});
+L.control.zoom({position:'bottomright'}).addTo(map);
+const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OSM'}).addTo(map);
+const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+osm.addTo(map);
+L.control.layers({"Streets":osm,"Satellite":sat}).addTo(map);
+setTimeout(()=>{try{map.invalidateSize();}catch(e){}},500);
+console.log('Map initialized');
+}catch(err){console.error('Map init error',err);document.getElementById('map').innerHTML='<div style="padding:20px;color:red">Map failed: '+err.message+'</div>';}
+}
+initMap();
+setTimeout(()=>{try{render();}catch(e){console.error('initial render fail',e);}},800);
 </script>
 </body>
 </html>

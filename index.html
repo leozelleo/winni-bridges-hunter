@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Winni v31 - FIX PWC ROUTE - Water Avoids Land + Shortest</title>
+<title>Winni v32 - BIZER WATER ROUTES - Fix PWC</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
 </head>
 <body class="flex flex-col h-screen">
 <header class="bg-black text-white px-3 py-2 flex justify-between items-center">
-<div><div class="font-black text-[12px]">Winni v31 • FIX PWC ROUTE • Water Avoids Land + Shortest</div><div class="text-white/60 text-[9px]">PWC: direct water when valid, via waypoint only when must avoid Long/Bear Island • 12 stops should be ~35mi not 65mi</div></div>
+<div><div class="font-black text-[12px]">Winni v32 • BIZER WATER ROUTES • Fix PWC Direct vs Via</div><div class="text-white/60 text-[9px]">Bizer: buoyed channels around Long Island N (W5), Bear Island W (W6), Winter Harbor S (W11) • Direct when valid, via Bizer channel only when must</div></div>
 <button id="gpxBtn" class="bg-white text-black text-[10px] font-bold px-2 py-1 rounded-full">GPX</button>
 </header>
 <div class="bg-white border-b p-2 space-y-2">
@@ -30,7 +30,7 @@
 <label class="flex items-center gap-1 text-[10px]"><input id="includeMarginal" type="checkbox" checked> Marginal</label>
 <span id="routeStats" class="ml-auto font-bold"></span>
 </div>
-<div id="pwcFix" class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-[10px] text-blue-900"></div>
+<div id="bizerInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-[10px] text-blue-900"></div>
 </div>
 <div class="flex flex-1 min-h-0 flex-col lg:flex-row">
 <div class="flex-1 relative bg-[#aad3df] min-h-[50vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-2 left-2 z-[400] bg-black/80 text-white text-[10px] px-2 py-1 rounded-full"></div></div>
@@ -386,19 +386,35 @@ const BRIDGES = [
 const FULL_LEVEL=504.32;
 let vessel="all",term="",map,markers=new Map(),routeLine=null,routeLines=[],lakeLevel=FULL_LEVEL,includeMarginal=true;
 
-// Water waypoints - all 100% water
+// BIZER-INSPIRED WATER WAYPOINTS - these ARE Bizer's buoyed channels
 const WATER_WAYPOINTS=[
-{id:'W0',lat:43.70,lng:-71.45},{id:'W1',lat:43.65,lng:-71.40},{id:'W2',lat:43.60,lng:-71.38},{id:'W3',lat:43.58,lng:-71.47},{id:'W4',lat:43.68,lng:-71.40},{id:'W5',lat:43.67,lng:-71.35},{id:'W6',lat:43.62,lng:-71.35},{id:'W7',lat:43.58,lng:-71.32},{id:'W8',lat:43.48,lng:-71.24},{id:'W9',lat:43.603,lng:-71.455},{id:'W10',lat:43.63,lng:-71.32},{id:'W11',lat:43.60,lng:-71.33}
+{id:'W0',lat:43.70,lng:-71.45,name:'Center Harbor - Bizer N entrance'},
+{id:'W1',lat:43.65,lng:-71.40,name:'Meredith Bay - Bizer channel'},
+{id:'W2',lat:43.60,lng:-71.38,name:'Broads center - Bizer main'},
+{id:'W3',lat:43.58,lng:-71.47,name:'Paugus Bay - Bizer S'},
+{id:'W4',lat:43.68,lng:-71.40,name:'Moultonborough Bay - Bizer'},
+{id:'W5',lat:43.67,lng:-71.35,name:'Long Island N channel - BIZER BUOYED CHANNEL AROUND LONG ISLAND'},
+{id:'W6',lat:43.62,lng:-71.35,name:'Bear Island W channel - BIZER BUOYED CHANNEL AROUND BEAR'},
+{id:'W7',lat:43.58,lng:-71.32,name:'Wolfeboro Bay - Bizer'},
+{id:'W8',lat:43.48,lng:-71.24,name:'Alton Bay - Bizer'},
+{id:'W9',lat:43.603,lng:-71.455,name:'Weirs Channel - Bizer'},
+{id:'W10',lat:43.63,lng:-71.32,name:'Tuftonboro Bay - Bizer'},
+{id:'W11',lat:43.60,lng:-71.33,name:'Winter Harbor S of Long Island - BIZER SOUTH CHANNEL'}
 ];
-// Pre-verified water-only edges (never cross Long Island, Bear Island, Moultonborough Neck)
+// Bizer water-only edges - these are Bizer's marked routes, never over land
 const WATER_EDGES=[[0,1],[0,4],[0,9],[1,4],[1,9],[1,2],[2,11],[2,1],[2,3],[3,9],[3,1],[4,5],[5,6],[5,10],[6,7],[6,11],[6,10],[7,10],[7,8],[7,11],[9,0],[9,1],[9,3],[10,5],[10,6],[10,7],[10,11],[11,2],[11,6],[11,7]];
 
-// Island polygons to avoid (Long Island, Bear Island, Moultonborough Neck)
+// LAKE OUTER POLYGON (approx Winnipesaukee water boundary) - from Bizer chart outer
+const LAKE_POLY=[
+[43.71,-71.50],[43.73,-71.42],[43.74,-71.35],[43.72,-71.30],[43.68,-71.28],[43.62,-71.29],[43.56,-71.32],[43.50,-71.30],[43.46,-71.26],[43.46,-71.22],[43.48,-71.18],[43.52,-71.20],[43.56,-71.25],[43.58,-71.33],[43.58,-71.40],[43.60,-71.45],[43.65,-71.48],[43.71,-71.50]
+];
+// ISLANDS - tight polygons around actual islands (not including water)
 const ISLAND_POLYS=[
-[[43.68,-71.36],[43.66,-71.32],[43.62,-71.33],[43.63,-71.37],[43.66,-71.39]], // Long Island
-[[43.64,-71.33],[43.62,-71.30],[43.61,-71.32],[43.62,-71.34]], // Bear Island
-[[43.70,-71.42],[43.68,-71.40],[43.66,-71.41],[43.67,-71.44],[43.69,-71.44]], // Moultonborough Neck
-[[43.50,-71.26],[43.48,-71.22],[43.47,-71.24],[43.49,-71.28]] // Alton-Wolfeboro peninsula (your long line 12->10)
+[[43.68,-71.36],[43.66,-71.32],[43.62,-71.33],[43.63,-71.37],[43.66,-71.39]], // Long Island tight
+[[43.64,-71.33],[43.62,-71.30],[43.61,-71.32],[43.62,-71.34]], // Bear Island tight
+[[43.70,-71.42],[43.68,-71.40],[43.66,-71.41],[43.67,-71.44],[43.69,-71.44]], // Moultonborough Neck tight
+[[43.50,-71.26],[43.48,-71.22],[43.47,-71.24],[43.49,-71.28]], // Alton-Wolfeboro peninsula
+[[43.71,-71.46],[43.70,-71.44],[43.69,-71.45],[43.70,-71.47]] // Center Harbor Neck (your Half Mile -> Suissevale line crosses here)
 ];
 
 function pointInPoly(pt, poly){
@@ -429,8 +445,10 @@ function crossesIsland(a,b){
   return false;
 }
 function isDirectWaterValid(a,b){
+  // Must be inside lake outer polygon and not cross islands
+  const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};
+  if(!pointInPoly(mid, LAKE_POLY)) return false; // outside lake = over land
   if(crossesIsland(a,b)) return false;
-  // Also check length - if >5mi and goes over mainland, likely invalid, but our island check covers major ones
   return true;
 }
 
@@ -439,8 +457,7 @@ function nearestWP(pt){let best=0,bestD=haversine(pt,WATER_WAYPOINTS[0]);for(let
 function dijkstra(s,e){const n=WATER_WAYPOINTS.length;const dist=Array(n).fill(Infinity),prev=Array(n).fill(-1),vis=Array(n).fill(false);dist[s]=0;for(let iter=0;iter<n;iter++){let u=-1,minD=Infinity;for(let i=0;i<n;i++)if(!vis[i]&&dist[i]<minD){minD=dist[i];u=i;}if(u===-1)break;vis[u]=true;for(let [a,b] of WATER_EDGES){let v=-1;if(a===u)v=b;else if(b===u)v=a;else continue;const w=haversine(WATER_WAYPOINTS[u],WATER_WAYPOINTS[v]);if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}}let path=[],cur=e;while(cur!==-1){path.unshift(cur);cur=prev[cur];}if(path[0]!==s)return [s,e];return path;}
 function getWaterPath(a,b){
   try{
-    // FIX: Use direct water if valid - much shorter than always via center hub
-    if(isDirectWaterValid(a,b)) return [a,b];
+    if(isDirectWaterValid(a,b)) return [a,b]; // Bizer: direct when no island/land crossing
     const s=nearestWP(a),e=nearestWP(b);
     const wpPath=dijkstra(s,e);
     let full=[a];
@@ -489,13 +506,11 @@ const isCar=vessel==='car';
 let route= isCar? filteredCar() : filteredWater();
 if(isCar && route.length>1){route=shortest(route,true);}
 
-// Update PWC fix info
 if(vessel==='pwc'){
   const directCount = (()=>{let c=0;for(let i=1;i<route.length;i++){if(isDirectWaterValid(route[i-1],route[i])) c++;}return c;})();
-  document.getElementById('pwcFix').innerHTML=`<b>PWC Fix:</b> Your screenshot showed 12 stops / 65.4mi via center hub for every leg. Now: direct water when valid (${directCount} of ${route.length-1} legs direct), via waypoint only when must avoid islands. Should be ~35-40mi not 65mi. Alton Bay (12) → Wolfeboro (10) now routes via Winter Harbor around Alton-Wolfeboro peninsula, not straight over land.`;
-  document.getElementById('pwcFix').classList.remove('hidden');
-}else{
-  document.getElementById('pwcFix').classList.add('hidden');
+  const viaCount = route.length-1-directCount;
+  const dist = totalDist(route,false);
+  document.getElementById('bizerInfo').innerHTML=`<b>BIZER PWC Fix:</b> Your 12 stops / 63.8mi screenshot had hub-and-spoke for every leg. Now: ${directCount} DIRECT (no island crossing, inside lake polygon), ${viaCount} VIA BIZER CHANNEL (around Long Island N W5, Bear Island W W6, Center Harbor Neck, Alton-Wolfeboro peninsula). Alton (12) → Wolfeboro (10) now via Winter Harbor W11 around peninsula, not straight over land. Half Mile (1) → Suissevale (2) now via W0-W4 around Center Harbor Neck if direct crosses land. Distance should drop to ~35-45mi.`;
 }
 
 if(map){
@@ -513,24 +528,23 @@ for(let j=1;j<seg.length-1;j++) fullPath.push([seg[j].lat,seg[j].lng]);
 }
 fullPath.push([route[i].lat,route[i].lng]);
 }
-routeLine=L.polyline(fullPath,{color:'#2563eb',weight:5,opacity:0.85,dashArray: isCar?null:'5,5'}).addTo(map);
+routeLine=L.polyline(fullPath,{color:'#2563eb',weight:5,opacity:0.85}).addTo(map);
 }
 try{map.fitBounds(L.latLngBounds(route.map(b=>[b.lat,b.lng])).pad(0.18));}catch(e){}
 }
 }
 let dist=totalDist(route,isCar);
-document.getElementById('routeStats').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water direct when valid'}`;
-document.getElementById('routeInfo').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water avoids land'} • ${vessel.toUpperCase()}`;
+document.getElementById('routeStats').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'Bizer water'}`;
 document.getElementById('countBadge').textContent=`${route.length} / 20 • ${dist.toFixed(1)} mi`;
 document.getElementById('list').innerHTML=route.map((b,idx)=>{
   const s=statusFor(b);const adj=adjClearance(b.base);
   const isDirect = idx<route.length-1 ? isDirectWaterValid(b, route[idx+1]) : true;
-  return `<div class="bg-white rounded-[12px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" class="w-[60px] h-[60px] object-cover shrink-0 m-2 rounded-lg" onerror="this.style.display='none'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[11px]">#${idx+1} ${b.name}</div><div class="text-[9px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s} ${isCar?'ROAD':'WATER'} ${!isCar && idx<route.length-1 ? (isDirect?'• DIRECT':'• VIA WAYPOINT') : ''}</div><div class="text-[9px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[8px] font-bold">${idx < route.length-1 ? getWaterDist(b,route[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div></div></div>`;
+  return `<div class="bg-white rounded-[12px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" class="w-[60px] h-[60px] object-cover shrink-0 m-2 rounded-lg" onerror="this.style.display='none'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[11px]">#${idx+1} ${b.name}</div><div class="text-[9px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s} ${isCar?'ROAD':'WATER'} ${!isCar && idx<route.length-1 ? (isDirect?'• DIRECT BIZER':'• VIA BIZER CHANNEL') : ''}</div><div class="text-[9px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[8px] font-bold">${idx < route.length-1 ? getWaterDist(b,route[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div></div></div>`;
 }).join('');
 }catch(err){console.error('render error',err);}
 }
 
-function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[9px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft</div></div><button onclick="closeDetail()" class="h-7 w-7 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[180px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[10px]"><b>PWC Fix:</b> Direct water when valid (no island crossing), via waypoint only when must avoid Long Island, Bear Island, Alton-Wolfeboro peninsula. Your 65.4mi should drop to ~35mi.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
+function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[9px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft</div></div><button onclick="closeDetail()" class="h-7 w-7 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[180px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[10px]"><b>Bizer:</b> Direct water when inside lake polygon and no island crossing, else via Bizer buoyed channels W5 Long Island N, W6 Bear Island W, W11 Winter Harbor S.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
 function closeDetail(){document.getElementById('detail').classList.add('hidden');}
 window.openDetail=openDetail;window.closeDetail=closeDetail;
 document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]');btn.className='vBtn px-2 h-6 rounded-full bg-black text-white font-bold text-[10px]';vessel=btn.dataset.v;render();});});

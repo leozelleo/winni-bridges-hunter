@@ -1,8 +1,8 @@
 {
-  "rewrites": [
-    {
-      "source": "/lakelevel",
-      "destination": "/api/lakelevel"
+  "framework": null,
+  "functions": {
+    "api/lakelevel.js": {
+      "maxDuration": 10
     }
-  ]
+  }
 }

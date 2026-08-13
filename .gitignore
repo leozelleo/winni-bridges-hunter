@@ -1,9 +1,3 @@
-OLD_WINNI_ARCHIVE/
-winnipesaukee_iphone_deploy/
-winnipesaukee_github/
-FULL_CLEAN_DROP/
-*.zip
-.DS_Store
-__MACOSX/
+node_modules
 .vercel
-.env*
+.env

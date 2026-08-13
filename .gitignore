@@ -5,3 +5,5 @@ FULL_CLEAN_DROP/
 *.zip
 .DS_Store
 __MACOSX/
+.vercel
+.env*

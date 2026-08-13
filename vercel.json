@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/lakelevel",
+      "destination": "/api/lakelevel"
+    }
+  ]
+}

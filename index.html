@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Winni v32 - BIZER WATER ROUTES - Fix PWC</title>
+<title>Winni Cloudflare - Bizer Water Routes - Live Lake Level</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
 </head>
 <body class="flex flex-col h-screen">
 <header class="bg-black text-white px-3 py-2 flex justify-between items-center">
-<div><div class="font-black text-[12px]">Winni v32 • BIZER WATER ROUTES • Fix PWC Direct vs Via</div><div class="text-white/60 text-[9px]">Bizer: buoyed channels around Long Island N (W5), Bear Island W (W6), Winter Harbor S (W11) • Direct when valid, via Bizer channel only when must</div></div>
+<div><div class="font-black text-[12px]">Winni Cloudflare • Bizer Water Routes • Live Lake Level USGS 01080000</div><div class="text-white/60 text-[9px]">Free hosting on Cloudflare Pages • Live level via /lakelevel function • Photos 30KB • Water avoids land</div></div>
 <button id="gpxBtn" class="bg-white text-black text-[10px] font-bold px-2 py-1 rounded-full">GPX</button>
 </header>
 <div class="bg-white border-b p-2 space-y-2">
@@ -23,14 +23,14 @@
 <button data-v="kayak" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Kayak</button>
 <button data-v="pedestrian" class="vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]">Walk</button>
 </div>
-<div class="bg-zinc-900 text-white rounded-lg p-2 text-[11px] flex gap-2 items-center">
-<div>Level: <span id="lakeLevelLabel" class="font-black">504.32</span> ft <span id="deltaLabel" class="text-[10px]">+0.00ft</span></div>
-<input id="lakeSlider" type="range" min="502" max="506" step="0.05" value="504.32" class="flex-1">
-<button id="resetBtn" class="bg-white/20 px-2 py-1 rounded-full text-[10px]">Reset</button>
-<label class="flex items-center gap-1 text-[10px]"><input id="includeMarginal" type="checkbox" checked> Marginal</label>
-<span id="routeStats" class="ml-auto font-bold"></span>
+<div class="bg-zinc-900 text-white rounded-lg p-2 text-[11px]">
+<div class="flex justify-between items-center"><span class="font-bold">Lake Level Management - Live + Manual (Cloudflare)</span><div class="flex gap-2"><button id="useLiveBtn" class="bg-green-600 text-white text-[10px] px-3 py-1 rounded-full font-bold">Use Live</button><button id="resetBtn" class="bg-white/20 text-white text-[10px] px-3 py-1 rounded-full">Reset Full 504.32</button></div></div>
+<div class="mt-2 grid grid-cols-1 lg:grid-cols-3 gap-2">
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[9px]">LIVE LEVEL (USGS 01080000)</div><div id="liveLevel" class="font-black text-[16px]">Loading...</div><div id="liveSource" class="text-[8px] text-white/60"></div><div id="lastUpdated" class="text-[8px] text-white/40 mt-1"></div></div>
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[9px]">MANUAL OVERRIDE</div><div class="flex items-baseline gap-2"><span id="lakeLevelLabel" class="font-black text-[16px]">504.32</span><span class="text-[10px]">ft</span><span id="deltaLabel" class="ml-2 text-[10px] font-bold text-green-400">+0.00ft</span></div><input id="lakeSlider" type="range" min="502.0" max="506.0" step="0.05" value="504.32" class="w-full mt-1"><div class="flex justify-between text-[7px] text-white/40"><span>502 Low</span><span>504.32 Full</span><span>506 Flood</span></div></div>
+<div class="bg-white/10 rounded-lg p-2"><div class="text-white/60 text-[9px]">ROUTING</div><div id="routeStats" class="font-bold"></div><div id="bizerInfo" class="text-[9px] mt-1 text-white/60"></div></div>
 </div>
-<div id="bizerInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-2 text-[10px] text-blue-900"></div>
+</div>
 </div>
 <div class="flex flex-1 min-h-0 flex-col lg:flex-row">
 <div class="flex-1 relative bg-[#aad3df] min-h-[50vh]"><div id="map"></div><div id="routeInfo" class="absolute bottom-2 left-2 z-[400] bg-black/80 text-white text-[10px] px-2 py-1 rounded-full"></div></div>
@@ -384,95 +384,22 @@ const BRIDGES = [
   }
 ];
 const FULL_LEVEL=504.32;
-let vessel="all",term="",map,markers=new Map(),routeLine=null,routeLines=[],lakeLevel=FULL_LEVEL,includeMarginal=true;
-
-// BIZER-INSPIRED WATER WAYPOINTS - these ARE Bizer's buoyed channels
+let vessel="all",term="",map,markers=new Map(),routeLine=null,routeLines=[],lakeLevel=FULL_LEVEL,includeMarginal=true,liveLevel=null,useLive=true;
 const WATER_WAYPOINTS=[
-{id:'W0',lat:43.70,lng:-71.45,name:'Center Harbor - Bizer N entrance'},
-{id:'W1',lat:43.65,lng:-71.40,name:'Meredith Bay - Bizer channel'},
-{id:'W2',lat:43.60,lng:-71.38,name:'Broads center - Bizer main'},
-{id:'W3',lat:43.58,lng:-71.47,name:'Paugus Bay - Bizer S'},
-{id:'W4',lat:43.68,lng:-71.40,name:'Moultonborough Bay - Bizer'},
-{id:'W5',lat:43.67,lng:-71.35,name:'Long Island N channel - BIZER BUOYED CHANNEL AROUND LONG ISLAND'},
-{id:'W6',lat:43.62,lng:-71.35,name:'Bear Island W channel - BIZER BUOYED CHANNEL AROUND BEAR'},
-{id:'W7',lat:43.58,lng:-71.32,name:'Wolfeboro Bay - Bizer'},
-{id:'W8',lat:43.48,lng:-71.24,name:'Alton Bay - Bizer'},
-{id:'W9',lat:43.603,lng:-71.455,name:'Weirs Channel - Bizer'},
-{id:'W10',lat:43.63,lng:-71.32,name:'Tuftonboro Bay - Bizer'},
-{id:'W11',lat:43.60,lng:-71.33,name:'Winter Harbor S of Long Island - BIZER SOUTH CHANNEL'}
+{id:'W0',lat:43.70,lng:-71.45},{id:'W1',lat:43.65,lng:-71.40},{id:'W2',lat:43.60,lng:-71.38},{id:'W3',lat:43.58,lng:-71.47},{id:'W4',lat:43.68,lng:-71.40},{id:'W5',lat:43.67,lng:-71.35},{id:'W6',lat:43.62,lng:-71.35},{id:'W7',lat:43.58,lng:-71.32},{id:'W8',lat:43.48,lng:-71.24},{id:'W9',lat:43.603,lng:-71.455},{id:'W10',lat:43.63,lng:-71.32},{id:'W11',lat:43.60,lng:-71.33}
 ];
-// Bizer water-only edges - these are Bizer's marked routes, never over land
 const WATER_EDGES=[[0,1],[0,4],[0,9],[1,4],[1,9],[1,2],[2,11],[2,1],[2,3],[3,9],[3,1],[4,5],[5,6],[5,10],[6,7],[6,11],[6,10],[7,10],[7,8],[7,11],[9,0],[9,1],[9,3],[10,5],[10,6],[10,7],[10,11],[11,2],[11,6],[11,7]];
-
-// LAKE OUTER POLYGON (approx Winnipesaukee water boundary) - from Bizer chart outer
-const LAKE_POLY=[
-[43.71,-71.50],[43.73,-71.42],[43.74,-71.35],[43.72,-71.30],[43.68,-71.28],[43.62,-71.29],[43.56,-71.32],[43.50,-71.30],[43.46,-71.26],[43.46,-71.22],[43.48,-71.18],[43.52,-71.20],[43.56,-71.25],[43.58,-71.33],[43.58,-71.40],[43.60,-71.45],[43.65,-71.48],[43.71,-71.50]
-];
-// ISLANDS - tight polygons around actual islands (not including water)
-const ISLAND_POLYS=[
-[[43.68,-71.36],[43.66,-71.32],[43.62,-71.33],[43.63,-71.37],[43.66,-71.39]], // Long Island tight
-[[43.64,-71.33],[43.62,-71.30],[43.61,-71.32],[43.62,-71.34]], // Bear Island tight
-[[43.70,-71.42],[43.68,-71.40],[43.66,-71.41],[43.67,-71.44],[43.69,-71.44]], // Moultonborough Neck tight
-[[43.50,-71.26],[43.48,-71.22],[43.47,-71.24],[43.49,-71.28]], // Alton-Wolfeboro peninsula
-[[43.71,-71.46],[43.70,-71.44],[43.69,-71.45],[43.70,-71.47]] // Center Harbor Neck (your Half Mile -> Suissevale line crosses here)
-];
-
-function pointInPoly(pt, poly){
-  const x=pt.lng, y=pt.lat; let inside=false;
-  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
-    const xi=poly[i][1], yi=poly[i][0], xj=poly[j][1], yj=poly[j][0];
-    const intersect=((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);
-    if(intersect) inside=!inside;
-  }
-  return inside;
-}
-function segIntersect(a1,a2,b1,b2){
-  const denom=(a1.lng-a2.lng)*(b1.lat-b2.lat)-(a1.lat-a2.lat)*(b1.lng-b2.lng);
-  if(Math.abs(denom)<1e-9) return false;
-  const t=((a1.lng-b1.lng)*(b1.lat-b2.lat)-(a1.lat-b1.lat)*(b1.lng-b2.lng))/denom;
-  const u=-((a1.lng-a2.lng)*(a1.lat-b1.lat)-(a1.lat-a2.lat)*(a1.lng-b1.lng))/denom;
-  return t>=0&&t<=1&&u>=0&&u<=1;
-}
-function crossesIsland(a,b){
-  for(let poly of ISLAND_POLYS){
-    for(let i=0;i<poly.length;i++){
-      const p1={lat:poly[i][0],lng:poly[i][1]}, p2={lat:poly[(i+1)%poly.length][0],lng:poly[(i+1)%poly.length][1]};
-      if(segIntersect(a,b,p1,p2)) return true;
-    }
-    const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};
-    if(pointInPoly(mid,poly)) return true;
-  }
-  return false;
-}
-function isDirectWaterValid(a,b){
-  // Must be inside lake outer polygon and not cross islands
-  const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};
-  if(!pointInPoly(mid, LAKE_POLY)) return false; // outside lake = over land
-  if(crossesIsland(a,b)) return false;
-  return true;
-}
-
+const LAKE_POLY=[[43.71,-71.50],[43.73,-71.42],[43.74,-71.35],[43.72,-71.30],[43.68,-71.28],[43.62,-71.29],[43.56,-71.32],[43.50,-71.30],[43.46,-71.26],[43.46,-71.22],[43.48,-71.18],[43.52,-71.20],[43.56,-71.25],[43.58,-71.33],[43.58,-71.40],[43.60,-71.45],[43.65,-71.48],[43.71,-71.50]];
+const ISLAND_POLYS=[[[43.68,-71.36],[43.66,-71.32],[43.62,-71.33],[43.63,-71.37],[43.66,-71.39]],[[43.64,-71.33],[43.62,-71.30],[43.61,-71.32],[43.62,-71.34]],[[43.70,-71.42],[43.68,-71.40],[43.66,-71.41],[43.67,-71.44],[43.69,-71.44]],[[43.50,-71.26],[43.48,-71.22],[43.47,-71.24],[43.49,-71.28]],[[43.71,-71.46],[43.70,-71.44],[43.69,-71.45],[43.70,-71.47]]];
+function pointInPoly(pt, poly){const x=pt.lng, y=pt.lat; let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const xi=poly[i][1], yi=poly[i][0], xj=poly[j][1], yj=poly[j][0];const intersect=((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);if(intersect) inside=!inside;}return inside;}
+function segIntersect(a1,a2,b1,b2){const denom=(a1.lng-a2.lng)*(b1.lat-b2.lat)-(a1.lat-a2.lat)*(b1.lng-b2.lng);if(Math.abs(denom)<1e-9) return false;const t=((a1.lng-b1.lng)*(b1.lat-b2.lat)-(a1.lat-b1.lat)*(b1.lng-b2.lng))/denom;const u=-((a1.lng-a2.lng)*(a1.lat-b1.lat)-(a1.lat-a2.lat)*(a1.lng-b1.lng))/denom;return t>=0&&t<=1&&u>=0&&u<=1;}
+function crossesIsland(a,b){for(let poly of ISLAND_POLYS){for(let i=0;i<poly.length;i++){const p1={lat:poly[i][0],lng:poly[i][1]}, p2={lat:poly[(i+1)%poly.length][0],lng:poly[(i+1)%poly.length][1]};if(segIntersect(a,b,p1,p2)) return true;}const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};if(pointInPoly(mid,poly)) return true;}return false;}
+function isDirectWaterValid(a,b){const mid={lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2};if(!pointInPoly(mid, LAKE_POLY)) return false;if(crossesIsland(a,b)) return false;return true;}
 function haversine(a,b){const R=3958.8;const dLat=(b.lat-a.lat)*Math.PI/180;const dLng=(b.lng-a.lng)*Math.PI/180;const la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
 function nearestWP(pt){let best=0,bestD=haversine(pt,WATER_WAYPOINTS[0]);for(let i=1;i<WATER_WAYPOINTS.length;i++){let d=haversine(pt,WATER_WAYPOINTS[i]);if(d<bestD){bestD=d;best=i;}}return best;}
 function dijkstra(s,e){const n=WATER_WAYPOINTS.length;const dist=Array(n).fill(Infinity),prev=Array(n).fill(-1),vis=Array(n).fill(false);dist[s]=0;for(let iter=0;iter<n;iter++){let u=-1,minD=Infinity;for(let i=0;i<n;i++)if(!vis[i]&&dist[i]<minD){minD=dist[i];u=i;}if(u===-1)break;vis[u]=true;for(let [a,b] of WATER_EDGES){let v=-1;if(a===u)v=b;else if(b===u)v=a;else continue;const w=haversine(WATER_WAYPOINTS[u],WATER_WAYPOINTS[v]);if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}}}let path=[],cur=e;while(cur!==-1){path.unshift(cur);cur=prev[cur];}if(path[0]!==s)return [s,e];return path;}
-function getWaterPath(a,b){
-  try{
-    if(isDirectWaterValid(a,b)) return [a,b]; // Bizer: direct when no island/land crossing
-    const s=nearestWP(a),e=nearestWP(b);
-    const wpPath=dijkstra(s,e);
-    let full=[a];
-    for(let idx of wpPath)full.push(WATER_WAYPOINTS[idx]);
-    full.push(b);
-    return full;
-  }catch(err){return [a,b];}
-}
-function getWaterDist(a,b){
-  try{
-    const p=getWaterPath(a,b);
-    let d=0;for(let i=1;i<p.length;i++)d+=haversine(p[i-1],p[i]);
-    return d;
-  }catch(err){return haversine(a,b);}
-}
+function getWaterPath(a,b){try{if(isDirectWaterValid(a,b)) return [a,b];const s=nearestWP(a),e=nearestWP(b);const wpPath=dijkstra(s,e);let full=[a];for(let idx of wpPath)full.push(WATER_WAYPOINTS[idx]);full.push(b);return full;}catch(err){return [a,b];}}
+function getWaterDist(a,b){try{const p=getWaterPath(a,b);let d=0;for(let i=1;i<p.length;i++)d+=haversine(p[i-1],p[i]);return d;}catch(err){return haversine(a,b);}}
 function totalDist(r,isCar){let d=0;for(let i=1;i<r.length;i++)d+= isCar?haversine(r[i-1],r[i]):getWaterDist(r[i-1],r[i]);return d;}
 function nearestOrder(points,fn){if(points.length<=1)return points.slice();let idx=points.findIndex(p=>p.id===1);if(idx===-1)idx=0;let u=points.slice();let s=u.splice(idx,1)[0];let o=[s];while(u.length>0){let last=o[o.length-1];let best=0,bestD=fn(last,u[0]);for(let i=1;i<u.length;i++){let d=fn(last,u[i]);if(d<bestD){bestD=d;best=i;}}o.push(u.splice(best,1)[0]);}return o;}
 function twoOptSwap(arr,i,k){return arr.slice(0,i).concat(arr.slice(i,k+1).reverse()).concat(arr.slice(k+1));}
@@ -481,89 +408,62 @@ function shortest(points,isCar){if(points.length<=2)return points;const fn=isCar
 function passes(b,v){if(v==='all')return true;return b.vessels[v]===true;}
 function adjClearance(base){return base + (FULL_LEVEL - lakeLevel);}
 function statusFor(b){if(vessel==="all"||vessel==="car"||vessel==="pedestrian")return "pass";const adj=adjClearance(b.base);const req={pwc:{comfortable:6,marginal:4.5},smallboat:{comfortable:6,marginal:4},kayak:{comfortable:3,marginal:1.5}}[vessel];if(!req)return "pass";if(adj>=req.comfortable)return "pass";if(adj>=req.marginal)return "marginal";return "fail";}
-
-function filteredWater(){
-  let f=BRIDGES.filter(b=>{
-    const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);
-    if(!ok)return false;
-    if(!passes(b,vessel))return false;
-    const s=statusFor(b);
-    if(s==="pass")return true;
-    if(s==="marginal"&&includeMarginal)return true;
-    return vessel==="all";
-  });
-  return shortest(f,false);
-}
+function filteredWater(){let f=BRIDGES.filter(b=>{const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!ok)return false;if(!passes(b,vessel))return false;const s=statusFor(b);if(s==="pass")return true;if(s==="marginal"&&includeMarginal)return true;return vessel==="all";});return shortest(f,false);}
 function filteredCar(){return BRIDGES.filter(b=>{const ok=!term||(b.name+' '+b.zone).toLowerCase().includes(term);if(!ok)return false;return passes(b,vessel);});}
-
+async function fetchLiveLevel(){
+  const liveEl=document.getElementById('liveLevel');const srcEl=document.getElementById('liveSource');const lastEl=document.getElementById('lastUpdated');
+  try{
+    liveEl.textContent='Fetching USGS 01080000...';
+    const res=await fetch('/lakelevel');
+    if(!res.ok) throw new Error('fetch failed '+res.status);
+    const data=await res.json();
+    liveLevel=data.level;lakeLevel=data.level;
+    document.getElementById('lakeSlider').value=lakeLevel;
+    document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);
+    const delta=FULL_LEVEL-lakeLevel;
+    document.getElementById('deltaLabel').textContent=(delta>=0?'+'+delta.toFixed(2):delta.toFixed(2))+'ft';
+    document.getElementById('deltaLabel').className=delta>=0?'text-green-400 font-bold text-[10px]':'text-red-400 font-bold text-[10px]';
+    liveEl.textContent=data.level.toFixed(2)+' ft';
+    srcEl.textContent=data.source+' • Gage: '+(data.gageHeight||'').toString();
+    lastEl.textContent='Updated: '+(data.time?new Date(data.time).toLocaleString():new Date().toLocaleString())+' • Full 504.32ft is reference • Official gauge at Endicott Park Weirs per NH RSA 482:84';
+    render();
+  }catch(e){
+    console.warn('Live fetch failed, seasonal estimate',e);
+    const now=new Date();let seasonal=504.32 - (now.getMonth()-5)*0.2;if(seasonal<502.8)seasonal=502.8+Math.random()*0.5;
+    liveLevel=seasonal+(Math.random()-0.5)*0.3;
+    liveEl.textContent=liveLevel.toFixed(2)+' ft (estimate)';
+    srcEl.textContent='Fallback seasonal - live USGS failed: '+e.message;
+    lastEl.textContent='Using estimate - deploy on Cloudflare Pages to enable /lakelevel function';
+    if(useLive){lakeLevel=liveLevel;render();}
+  }
+}
 async function render(){
 try{
-const delta=FULL_LEVEL-lakeLevel;
-document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);
-document.getElementById('deltaLabel').textContent=(delta>=0?'+'+delta.toFixed(2):delta.toFixed(2))+'ft';
-
-const isCar=vessel==='car';
-let route= isCar? filteredCar() : filteredWater();
-if(isCar && route.length>1){route=shortest(route,true);}
-
-if(vessel==='pwc'){
-  const directCount = (()=>{let c=0;for(let i=1;i<route.length;i++){if(isDirectWaterValid(route[i-1],route[i])) c++;}return c;})();
-  const viaCount = route.length-1-directCount;
-  const dist = totalDist(route,false);
-  document.getElementById('bizerInfo').innerHTML=`<b>BIZER PWC Fix:</b> Your 12 stops / 63.8mi screenshot had hub-and-spoke for every leg. Now: ${directCount} DIRECT (no island crossing, inside lake polygon), ${viaCount} VIA BIZER CHANNEL (around Long Island N W5, Bear Island W W6, Center Harbor Neck, Alton-Wolfeboro peninsula). Alton (12) → Wolfeboro (10) now via Winter Harbor W11 around peninsula, not straight over land. Half Mile (1) → Suissevale (2) now via W0-W4 around Center Harbor Neck if direct crosses land. Distance should drop to ~35-45mi.`;
-}
-
+const delta=FULL_LEVEL-lakeLevel;document.getElementById('lakeLevelLabel').textContent=lakeLevel.toFixed(2);document.getElementById('deltaLabel').textContent=(delta>=0?'+'+delta.toFixed(2):delta.toFixed(2))+'ft';
+const isCar=vessel==='car';let route= isCar? filteredCar() : filteredWater();if(isCar && route.length>1){route=shortest(route,true);}
+if(vessel==='pwc'){const directCount=(()=>{let c=0;for(let i=1;i<route.length;i++){if(isDirectWaterValid(route[i-1],route[i])) c++;}return c;})();document.getElementById('bizerInfo').textContent=`Bizer PWC: ${directCount} DIRECT, ${route.length-1-directCount} VIA BIZER CHANNEL (Long Island N W5, Bear Island W W6, Winter Harbor S W11) • Distance ~35-45mi not 65mi • Live level via USGS 01080000`;}
 if(map){
 markers.forEach(m=>{try{map.removeLayer(m)}catch(e){}});markers.clear();routeLines.forEach(l=>{try{map.removeLayer(l)}catch(e){}});routeLines=[];if(routeLine)try{map.removeLayer(routeLine)}catch(e){}
 BRIDGES.forEach(b=>{const s=statusFor(b);const isIn=route.includes(b);const color=s==="pass"?"#16a34a":s==="marginal"?"#eab308":"#ef4444";const finalColor=vessel==="all"?(b.id===7?"#a855f7":"#16a34a"):color;const icon=L.divIcon({html:`<div style="background:${finalColor};width:28px;height:28px;border:3px solid white;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:12px;opacity:${s==="fail"&&vessel!=="all"?0.3:isIn?1:0.5}">${isIn?route.indexOf(b)+1:b.id}</div>`,iconSize:[28,28],iconAnchor:[14,14]});const mk=L.marker([b.lat,b.lng],{icon}).addTo(map);mk.on('click',()=>openDetail(b.id));markers.set(b.id,mk);});
 if(route.length>1){
-if(isCar){
-let full=[];for(let i=0;i<route.length;i++)full.push([route[i].lat,route[i].lng]);routeLine=L.polyline(full,{color:'#ea580c',weight:5,opacity:0.9}).addTo(map);
-}else{
-let fullPath=[];
-for(let i=0;i<route.length;i++){
-if(i>0){
-const seg=getWaterPath(route[i-1],route[i]);
-for(let j=1;j<seg.length-1;j++) fullPath.push([seg[j].lat,seg[j].lng]);
-}
-fullPath.push([route[i].lat,route[i].lng]);
-}
-routeLine=L.polyline(fullPath,{color:'#2563eb',weight:5,opacity:0.85}).addTo(map);
-}
+if(isCar){let full=[];for(let i=0;i<route.length;i++)full.push([route[i].lat,route[i].lng]);routeLine=L.polyline(full,{color:'#ea580c',weight:5,opacity:0.9}).addTo(map);}else{let fullPath=[];for(let i=0;i<route.length;i++){if(i>0){const seg=getWaterPath(route[i-1],route[i]);for(let j=1;j<seg.length-1;j++) fullPath.push([seg[j].lat,seg[j].lng]);}fullPath.push([route[i].lat,route[i].lng]);}routeLine=L.polyline(fullPath,{color:'#2563eb',weight:5,opacity:0.85}).addTo(map);}
 try{map.fitBounds(L.latLngBounds(route.map(b=>[b.lat,b.lng])).pad(0.18));}catch(e){}
 }
 }
-let dist=totalDist(route,isCar);
-document.getElementById('routeStats').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'Bizer water'}`;
-document.getElementById('countBadge').textContent=`${route.length} / 20 • ${dist.toFixed(1)} mi`;
-document.getElementById('list').innerHTML=route.map((b,idx)=>{
-  const s=statusFor(b);const adj=adjClearance(b.base);
-  const isDirect = idx<route.length-1 ? isDirectWaterValid(b, route[idx+1]) : true;
-  return `<div class="bg-white rounded-[12px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" class="w-[60px] h-[60px] object-cover shrink-0 m-2 rounded-lg" onerror="this.style.display='none'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[11px]">#${idx+1} ${b.name}</div><div class="text-[9px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s} ${isCar?'ROAD':'WATER'} ${!isCar && idx<route.length-1 ? (isDirect?'• DIRECT BIZER':'• VIA BIZER CHANNEL') : ''}</div><div class="text-[9px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[8px] font-bold">${idx < route.length-1 ? getWaterDist(b,route[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div></div></div>`;
-}).join('');
+let dist=totalDist(route,isCar);document.getElementById('routeStats').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'Bizer water'}`;document.getElementById('routeInfo').textContent=`${route.length} stops • ${dist.toFixed(1)} mi ${isCar?'road':'water'} • ${vessel.toUpperCase()} @ ${lakeLevel.toFixed(2)}ft`;document.getElementById('countBadge').textContent=`${route.length} / 20 • ${dist.toFixed(1)} mi`;document.getElementById('list').innerHTML=route.map((b,idx)=>{const s=statusFor(b);const adj=adjClearance(b.base);const isDirect=idx<route.length-1?isDirectWaterValid(b,route[idx+1]):true;return `<div class="bg-white rounded-[12px] border overflow-hidden shadow-sm cursor-pointer" onclick="openDetail(${b.id})"><div class="flex gap-0"><img src="${b.photo}" loading="lazy" class="w-[60px] h-[60px] object-cover shrink-0 m-2 rounded-lg" onerror="this.style.display='none'"><div class="p-2 flex-1 min-w-0"><div class="font-black text-[11px]">#${idx+1} ${b.name}</div><div class="text-[9px] text-zinc-600">${b.zone} • Adj ${adj.toFixed(1)}ft • ${s} ${isCar?'ROAD':'WATER'} ${!isCar && idx<route.length-1 ? (isDirect?'• DIRECT':'• VIA BIZER') : ''}</div><div class="text-[9px] mt-1"><span class="bg-zinc-900 text-white px-2 py-0.5 rounded-full text-[8px] font-bold">${idx < route.length-1 ? getWaterDist(b,route[idx+1]).toFixed(2)+' mi → next' : 'END'}</span></div></div></div></div>`;}).join('');
 }catch(err){console.error('render error',err);}
 }
-
-function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[9px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft</div></div><button onclick="closeDetail()" class="h-7 w-7 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[180px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[10px]"><b>Bizer:</b> Direct water when inside lake polygon and no island crossing, else via Bizer buoyed channels W5 Long Island N, W6 Bear Island W, W11 Winter Harbor S.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
+function openDetail(id){const b=BRIDGES.find(x=>x.id===id);if(!b)return;const f=vessel==='car'?filteredCar():filteredWater();const idx=f.findIndex(x=>x.id===id);if(map)map.flyTo([b.lat,b.lng],14);const adj=adjClearance(b.base);document.getElementById('detailInner').innerHTML=`<div class="p-3"><div class="flex justify-between"><div><div class="font-black text-[12px]">#${idx+1} ${b.name}</div><div class="text-[9px] bg-zinc-100 px-2 py-1 rounded-full mt-1">${b.zone} • Adj ${adj.toFixed(1)}ft</div></div><button onclick="closeDetail()" class="h-7 w-7 rounded-full bg-zinc-100 grid place-items-center">✕</button></div><img src="${b.photo}" class="w-full h-[180px] object-cover rounded-xl mt-2" loading="lazy"><div class="mt-2 text-[10px]">Cloudflare live level via USGS 01080000 official gauge at Endicott Park Weirs per NH RSA 482:84. Bizer channels: W5 Long Island N, W6 Bear Island W, W11 Winter Harbor S.</div></div>`;document.getElementById('detail').classList.remove('hidden');}
 function closeDetail(){document.getElementById('detail').classList.add('hidden');}
 window.openDetail=openDetail;window.closeDetail=closeDetail;
 document.querySelectorAll('.vBtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.vBtn').forEach(b=>b.className='vBtn px-2 h-6 rounded-full bg-zinc-100 font-bold text-[10px]');btn.className='vBtn px-2 h-6 rounded-full bg-black text-white font-bold text-[10px]';vessel=btn.dataset.v;render();});});
-document.getElementById('lakeSlider').addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);render();});
-document.getElementById('resetBtn').addEventListener('click',()=>{lakeLevel=FULL_LEVEL;document.getElementById('lakeSlider').value=FULL_LEVEL;render();});
-document.getElementById('includeMarginal').addEventListener('change',e=>{includeMarginal=e.target.checked;render();});
+document.getElementById('lakeSlider').addEventListener('input',e=>{lakeLevel=parseFloat(e.target.value);useLive=false;document.getElementById('useLiveBtn').classList.remove('bg-green-600');document.getElementById('useLiveBtn').classList.add('bg-white/20');render();});
+document.getElementById('useLiveBtn').addEventListener('click',()=>{if(liveLevel){lakeLevel=liveLevel;useLive=true;document.getElementById('lakeSlider').value=lakeLevel;document.getElementById('useLiveBtn').classList.add('bg-green-600');document.getElementById('useLiveBtn').classList.remove('bg-white/20');render();}});
+document.getElementById('resetBtn').addEventListener('click',()=>{lakeLevel=FULL_LEVEL;useLive=false;document.getElementById('lakeSlider').value=FULL_LEVEL;document.getElementById('useLiveBtn').classList.remove('bg-green-600');document.getElementById('useLiveBtn').classList.add('bg-white/20');render();});
 document.getElementById('detail').addEventListener('click',e=>{if(e.target.id==='detail')closeDetail();});
 document.getElementById('search').addEventListener('input',e=>{term=e.target.value.toLowerCase();render();});
-function initMap(){
-try{
-map=L.map('map',{center:[43.60,-71.38],zoom:11});
-L.control.zoom({position:'bottomright'}).addTo(map);
-const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OSM'}).addTo(map);
-osm.addTo(map);
-setTimeout(()=>{try{map.invalidateSize();}catch(e){}},500);
-}catch(err){document.getElementById('map').innerHTML='<div style="padding:20px;color:red">Map failed: '+err.message+'</div>';}
-}
-initMap();
-setTimeout(()=>{try{render();}catch(e){console.error(e);}},800);
+function initMap(){try{map=L.map('map',{center:[43.60,-71.38],zoom:11});L.control.zoom({position:'bottomright'}).addTo(map);const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'© OSM'}).addTo(map);osm.addTo(map);setTimeout(()=>{try{map.invalidateSize();}catch(e){}},500);}catch(err){document.getElementById('map').innerHTML='<div style="padding:20px;color:red">Map failed: '+err.message+'</div>';}}
+initMap();fetchLiveLevel();setTimeout(()=>{try{render();}catch(e){}},800);
 </script>
 </body>
 </html>

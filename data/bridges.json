@@ -17,17 +17,17 @@
     "baseClearanceFt": 6.0,
     "type": "Fixed",
     "photo": "governors-island.jpg",
-    "notes": "Low at high water - Bizer check"
+    "notes": "Low at high water"
   },
   {
     "id": "long-island",
-    "name": "Long Island Bridge (Moultonborough)",
+    "name": "Long Island Bridge",
     "lat": 43.649,
     "lng": -71.425,
     "baseClearanceFt": 8.2,
     "type": "Fixed",
     "photo": "long-island.jpg",
-    "notes": "Long Island access - 7'7\" at full per Bizer"
+    "notes": "Long Island access"
   },
   {
     "id": "black-cat",
@@ -37,7 +37,7 @@
     "baseClearanceFt": 4.5,
     "type": "Fixed",
     "photo": "black-cat.jpg",
-    "notes": "Very low - PWC/Kayak only at high water"
+    "notes": "Very low - PWC/Kayak only"
   },
   {
     "id": "sallys-gut",
@@ -47,7 +47,7 @@
     "baseClearanceFt": 5.0,
     "type": "Fixed",
     "photo": "sallys-gut.jpg",
-    "notes": "Narrow gut - no wake"
+    "notes": "Narrow gut"
   },
   {
     "id": "eagle-island",
@@ -67,7 +67,7 @@
     "baseClearanceFt": 6.2,
     "type": "Fixed",
     "photo": "smith-cove.jpg",
-    "notes": "Smith Cove - PWC friendly"
+    "notes": "Smith Cove"
   },
   {
     "id": "pickerel-cove",
@@ -77,7 +77,7 @@
     "baseClearanceFt": 5.8,
     "type": "Fixed",
     "photo": "pickerel-cove.jpg",
-    "notes": "Near Weirs - low"
+    "notes": "Near Weirs"
   },
   {
     "id": "paugus-bay",
@@ -87,7 +87,7 @@
     "baseClearanceFt": 9.0,
     "type": "Fixed",
     "photo": "paugus-bay.jpg",
-    "notes": "High clearance - car route"
+    "notes": "High clearance"
   },
   {
     "id": "bear-island-po",
@@ -97,17 +97,17 @@
     "baseClearanceFt": 7.0,
     "type": "Fixed",
     "photo": "bear-island.jpg",
-    "notes": "Bear Island mail boat - no car bridge"
+    "notes": "Bear Island mail"
   },
   {
     "id": "oak-island",
-    "name": "Oak Island Bridge (Paugus Bay)",
+    "name": "Oak Island Bridge",
     "lat": 43.566,
     "lng": -71.454,
     "baseClearanceFt": 6.5,
     "type": "Fixed",
     "photo": "oak-island.jpg",
-    "notes": "One of 6 bridged islands - Oak Island"
+    "notes": "Oak Island - bridged"
   },
   {
     "id": "worcester-island",
@@ -117,17 +117,17 @@
     "baseClearanceFt": 6.3,
     "type": "Fixed",
     "photo": "worcester-island.jpg",
-    "notes": "One of 6 bridged islands - Worcester"
+    "notes": "Worcester Island"
   },
   {
     "id": "christmas-island",
-    "name": "Christmas Island Bridge (Paugus Bay)",
+    "name": "Christmas Island Bridge",
     "lat": 43.571,
     "lng": -71.459,
     "baseClearanceFt": 6.4,
     "type": "Fixed",
     "photo": "christmas-island.jpg",
-    "notes": "One of 6 bridged islands - Christmas/Plummers"
+    "notes": "Christmas Island"
   },
   {
     "id": "birch-island",
@@ -137,7 +137,7 @@
     "baseClearanceFt": 4.8,
     "type": "Foot",
     "photo": "birch-island.jpg",
-    "notes": "Foot bridge - Birch & Steamboat connected"
+    "notes": "Birch & Steamboat foot"
   },
   {
     "id": "steamboat-island",
@@ -147,7 +147,7 @@
     "baseClearanceFt": 4.8,
     "type": "Foot",
     "photo": "steamboat-island.jpg",
-    "notes": "Foot bridge to Birch Island"
+    "notes": "Foot bridge"
   },
   {
     "id": "wolfeboro-backbay",
@@ -157,7 +157,7 @@
     "baseClearanceFt": 5.5,
     "type": "Fixed",
     "photo": "wolfeboro-backbay.jpg",
-    "notes": "Wolfeboro Back Bay - low fixed truss"
+    "notes": "Wolfeboro Back Bay"
   },
   {
     "id": "alton-bay",
@@ -167,7 +167,7 @@
     "baseClearanceFt": 8.5,
     "type": "Fixed",
     "photo": "alton-bay.jpg",
-    "notes": "Alton Bay - high clearance"
+    "notes": "Alton Bay"
   },
   {
     "id": "meredith-bay",
@@ -177,7 +177,7 @@
     "baseClearanceFt": 7.8,
     "type": "Fixed",
     "photo": "meredith-bay.jpg",
-    "notes": "Meredith - Hesky Park area"
+    "notes": "Meredith Bay"
   },
   {
     "id": "center-harbor",
@@ -187,7 +187,7 @@
     "baseClearanceFt": 7.2,
     "type": "Fixed",
     "photo": "center-harbor.jpg",
-    "notes": "Center Harbor - Rt 25B"
+    "notes": "Center Harbor"
   },
   {
     "id": "moultonboro-neck",
@@ -201,12 +201,12 @@
   },
   {
     "id": "bear-pine-433804",
-    "name": "Bear/Pine Island Channel Bridge (43\u00b038'04.3\"N 71\u00b022'27.3\"W)",
+    "name": "Bear/Pine Channel Bridge (43\u00b038'04.3\"N 71\u00b022'27.3\"W)",
     "lat": 43.6345278,
     "lng": -71.37425,
     "baseClearanceFt": 7.0,
     "type": "Fixed",
     "photo": "bear-pine-433804.jpg",
-    "notes": "USER REQUESTED - east of Bear Island near Pine Island"
+    "notes": "USER REQUESTED"
   }
 ]

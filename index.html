@@ -1,23 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Winni Bridges Hunter - Bizer Route Planner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winni-Bridges-Hunter — Bizer routing</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>body{margin:0;font-family:system-ui} #header{padding:12px 16px;background:#0f172a;color:white;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}#header h1{margin:0;font-size:18px}#lakeStatus{background:#1e293b;padding:8px 12px;border-radius:8px;font-size:13px}#map{height:62vh}#panel{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:800px){#panel{grid-template-columns:1fr}}.card{border:1px solid #e2e8f0;border-radius:12px;padding:12px}.bridge{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9}.badge{padding:2px 6px;border-radius:999px;font-size:11px}.ok{background:#dcfce7;color:#166534}.warn{background:#fef9c3;color:#854d0e}.danger{background:#fee2e2;color:#991b1b}</style>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f8fafc}
+  #header{padding:12px 16px;background:#0f172a;color:white;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  #header h1{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+  #lakeStatus{background:#1e293b;padding:8px 12px;border-radius:8px;font-size:13px;line-height:1.4}
+  #map{height:62vh;min-height:400px;border-bottom:2px solid #0f172a}
+  #panel{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1400px;margin:0 auto}
+  @media(max-width:900px){#panel{grid-template-columns:1fr}}
+  .card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .bridge{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+  .bridge:last-child{border:0}
+  .badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .ok{background:#dcfce7;color:#166534}.warn{background:#fef9c3;color:#854d0e}.danger{background:#fee2e2;color:#991b1b}
+  .live{animation:pulse 2s infinite} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+  a{color:#2563eb} a:hover{color:#1d4ed8}
+  input{padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px}
+  button{padding:8px 14px;border-radius:8px;border:0;background:#0f172a;color:white;cursor:pointer;font-weight:600} button:hover{background:#1e293b}
+</style>
 </head>
 <body>
-<div id="header"><h1>🚤 Winni-Bridges-Hunter — Bizer routing</h1><div id="lakeStatus">Loading...</div></div>
+<div id="header">
+  <h1>🚤 Winni-Bridges-Hunter <span style="font-weight:400;opacity:.7">— Bizer routing</span></h1>
+  <div id="lakeStatus">Loading live lake level…</div>
+</div>
 <div id="map"></div>
-<div id="panel"><div class="card"><h3>Bridges - Clearance vs Current Level</h3><div id="bridgeList"></div></div><div class="card"><h3>Bizer Route Check</h3><input id="draft" type="number" value="5.0" step="0.1" style="padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100px"> ft <button onclick="checkRoute()" style="padding:8px 12px;border-radius:8px;border:0;background:#0f172a;color:white">Check Route</button><div id="routeResult" style="margin-top:12px"></div><div style="font-size:12px;color:#64748b;margin-top:12px">API: <a href="/api/lakelevel">/api/lakelevel</a> | Stable: <span id="stableUrl"></span></div></div></div>
+<div id="panel">
+  <div class="card">
+    <h3 style="margin:0 0 10px">Bridges - Clearance vs Current Level</h3>
+    <div style="font-size:12px;color:#64748b;margin-bottom:12px">Clearance = BaseClearance - (CurrentLevel - 504.32ft Full Pool). Green = OK, Orange = Low, Red = Blocked.</div>
+    <div id="bridgeList"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin:0 0 10px">Bizer Route Check</h3>
+    <p style="font-size:13px;color:#475569;margin:0 0 8px">Enter your boat air draft (height above waterline):</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <input id="draft" type="number" value="5.0" step="0.1" min="0" max="20"> ft
+      <button onclick="checkRoute()">Check Route</button>
+    </div>
+    <div id="routeResult" style="font-size:13px;min-height:40px"></div>
+    <hr style="margin:16px 0;border:0;border-top:1px solid #e2e8f0">
+    <div style="font-size:11px;color:#64748b;line-height:1.5">
+      API: <a href="/api/lakelevel" target="_blank">/api/lakelevel</a> (LIVE, not 2017)<br>
+      Stable: <span id="stableUrl" style="font-family:monospace"></span><br>
+      Source: USGS 01080000 at Weirs Beach (Endicott Park) per NH RSA 482:84<br>
+      Note: USGS feed ended 2017-09-30 — now live from Bizer/DES<br>
+      Full Pool: 504.32 ft | Datum: Lake Level = Gage + 500ft<br>
+      <a href="https://www.des.nh.gov/water/dam-maintenance/dam-bureau/lake-levels" target="_blank">NH DES Dam Bureau - official current</a>
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const FULL_POOL=504.32;let currentLevel=null,bridges=[];
-async function load(){document.getElementById('stableUrl').textContent=window.location.origin;const b=await fetch('./data/bridges.json');bridges=await b.json();try{const r=await fetch('/api/lakelevel');const d=await r.json();currentLevel=d.level;const dt=new Date(d.time).toLocaleString();const badge=d.live?'<span class="badge ok">LIVE</span>':'<span class="badge danger">STALE '+dt+'</span>';document.getElementById('lakeStatus').innerHTML=`Level: <b>${d.level} ft</b> (${d.gageHeight} ft gage) ${badge} | Full ${d.fullPool} ft | ${dt}`;render();initMap();}catch(e){document.getElementById('lakeStatus').textContent='Failed: '+e;}}
-function getClr(b){return currentLevel==null?b.baseClearanceFt:b.baseClearanceFt-(currentLevel-FULL_POOL);}
-function render(){const l=document.getElementById('bridgeList');l.innerHTML='';bridges.forEach(br=>{const c=getClr(br);const badge=c<0?'<span class="badge danger">BLOCKED</span>':c<3?'<span class="badge warn">LOW</span>':'<span class="badge ok">OK</span>';const d=document.createElement('div');d.style.display='flex';d.style.justifyContent='space-between';d.innerHTML=`<span>${br.name}</span><span>${c.toFixed(1)}ft ${badge}</span>`;l.appendChild(d);});}
-function initMap(){const m=L.map('map').setView([43.61,-71.42],12);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(m);bridges.forEach(br=>{const c=getClr(br);const col=c<0?'red':c<3?'orange':'green';L.circleMarker([br.lat,br.lng],{radius:8,color:col,fillColor:col,fillOpacity:.8}).addTo(m).bindPopup(br.name+'<br>'+c.toFixed(1)+'ft');});}
-function checkRoute(){const draft=parseFloat(document.getElementById('draft').value)||0;const blocked=[];bridges.forEach(br=>{if(getClr(br)<draft)blocked.push(br.name);});document.getElementById('routeResult').innerHTML=blocked.length?'<span class="badge danger">BLOCKED: '+blocked.join(', ')+'</span>':'<span class="badge ok">CLEAR for '+draft+'ft</span>';}
+const FULL_POOL = 504.32;
+let currentLevel = null;
+let bridges = [];
+
+async function load(){
+  document.getElementById('stableUrl').textContent = window.location.origin;
+  try {
+    const br = await fetch('./data/bridges.json');
+    bridges = await br.json();
+  } catch(e){ bridges = []; }
+  
+  try {
+    const r = await fetch('/api/lakelevel');
+    const data = await r.json();
+    currentLevel = data.level;
+    const dt = new Date(data.time);
+    const timeStr = dt.toLocaleString();
+    const badge = data.live ? '<span class="badge ok live">LIVE</span>' : '<span class="badge danger">STALE</span>';
+    document.getElementById('lakeStatus').innerHTML = 
+      `Level: <b>${data.level} ft</b> (${data.gageHeight.toFixed(2)} ft gage) ${badge} | Full Pool ${data.fullPool} ft<br><small>${timeStr} | ${data.source}</small>`;
+    renderBridges();
+    initMap();
+  } catch(e){
+    document.getElementById('lakeStatus').innerHTML = 'Failed to load lake level: ' + e + '<br><small>Using 504.10 ft estimate</small>';
+    currentLevel = 504.10;
+    renderBridges();
+    initMap();
+  }
+}
+
+function getClearance(br){
+  if(currentLevel===null) return br.baseClearanceFt;
+  return br.baseClearanceFt - (currentLevel - FULL_POOL);
+}
+
+function renderBridges(){
+  const list = document.getElementById('bridgeList');
+  list.innerHTML = '';
+  bridges.forEach(br=>{
+    const clr = getClearance(br);
+    let badge = '<span class="badge ok">OK</span>';
+    if(clr < 0) badge = '<span class="badge danger">BLOCKED</span>';
+    else if(clr < 3) badge = '<span class="badge warn">LOW</span>';
+    const div = document.createElement('div');
+    div.className = 'bridge';
+    div.innerHTML = `<span><b>${br.name}</b><br><small style="color:#64748b">${br.baseClearanceFt}ft base • ${br.notes||''}</small></span><span style="text-align:right"><b>${clr.toFixed(1)}ft</b><br>${badge}</span>`;
+    list.appendChild(div);
+  });
+}
+
+let map;
+function initMap(){
+  if(map) map.remove();
+  map = L.map('map').setView([43.61, -71.42], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+  bridges.forEach(br=>{
+    const clr = getClearance(br);
+    const color = clr < 0 ? 'red' : clr < 3 ? 'orange' : 'green';
+    L.circleMarker([br.lat, br.lng],{radius:9,color:color,fillColor:color,fillOpacity:0.85,weight:2})
+      .addTo(map)
+      .bindPopup(`<b>${br.name}</b><br>Base: ${br.baseClearanceFt}ft<br>Current: ${clr.toFixed(1)}ft<br><small>${br.notes||''}</small><br><small>Level: ${currentLevel}ft</small>`);
+  });
+}
+
+function checkRoute(){
+  const draft = parseFloat(document.getElementById('draft').value) || 0;
+  const blocked = [], marginal = [];
+  bridges.forEach(br=>{
+    const clr = getClearance(br);
+    if(clr < draft) blocked.push(`${br.name} (${clr.toFixed(1)}ft < ${draft}ft)`);
+    else if(clr < draft + 1) marginal.push(`${br.name} (${clr.toFixed(1)}ft)`);
+  });
+  let html = '';
+  if(blocked.length===0) html += `<div class="badge ok" style="font-size:13px;padding:6px 10px">✓ Route CLEAR for ${draft}ft air draft</div>`;
+  else html += `<div class="badge danger" style="font-size:13px;padding:6px 10px">✗ BLOCKED for ${draft}ft</div><ul style="margin:8px 0 0 18px">${blocked.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+  if(marginal.length) html += `<div style="margin-top:10px"><b>Marginal (<1ft safety):</b><ul style="margin:4px 0 0 18px">${marginal.map(b=>`<li>${b}</li>`).join('')}</ul></div>`;
+  document.getElementById('routeResult').innerHTML = html;
+}
+
 load();
 </script>
 </body>

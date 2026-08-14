@@ -1,1 +1,6 @@
-{"name":"winni-bridges-hunter","type":"module"}
+{
+  "name": "winni-bridges-hunter",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module"
+}

@@ -1,3 +1,1 @@
-{
-  "functions": { "api/lakelevel.js": { "maxDuration": 10 } }
-}
+{"functions":{"api/lakelevel.js":{"maxDuration":10}}}

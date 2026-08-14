@@ -2,20 +2,22 @@
   {
     "id": "weirs-channel",
     "name": "Weirs Channel Bridge (Rt 11B)",
-    "lat": 43.608,
-    "lng": -71.458,
+    "lat": 43.6082,
+    "lng": -71.4585,
     "baseClearanceFt": 7.5,
     "type": "Fixed",
-    "notes": "Main channel to Paugus Bay"
+    "notes": "Main channel to Paugus Bay - busiest",
+    "photo": "weirs-channel.jpg"
   },
   {
     "id": "governors-island",
     "name": "Governor's Island Bridge",
-    "lat": 43.578,
-    "lng": -71.438,
+    "lat": 43.5781,
+    "lng": -71.4382,
     "baseClearanceFt": 6.0,
     "type": "Fixed",
-    "notes": "Low clearance at high water"
+    "notes": "Low at high water - check Bizer",
+    "photo": "governors-island.jpg"
   },
   {
     "id": "long-island",
@@ -24,33 +26,77 @@
     "lng": -71.425,
     "baseClearanceFt": 8.2,
     "type": "Fixed",
-    "notes": ""
+    "notes": "Long Island access",
+    "photo": "long-island.jpg"
   },
   {
     "id": "black-cat",
     "name": "Black Cat Island Bridge",
-    "lat": 43.59,
-    "lng": -71.35,
+    "lat": 43.5905,
+    "lng": -71.3505,
     "baseClearanceFt": 4.5,
     "type": "Fixed",
-    "notes": "Very low - check level"
+    "notes": "Very low - PWC/Kayak only at high water",
+    "photo": "black-cat.jpg"
   },
   {
     "id": "sallys-gut",
     "name": "Sally's Gut Bridge",
-    "lat": 43.599,
-    "lng": -71.399,
+    "lat": 43.5992,
+    "lng": -71.3991,
     "baseClearanceFt": 5.0,
     "type": "Fixed",
-    "notes": "Narrow, low"
+    "notes": "Narrow gut - slow no wake",
+    "photo": "sallys-gut.jpg"
   },
   {
     "id": "eagle-island",
     "name": "Eagle Island Bridge",
-    "lat": 43.623,
+    "lat": 43.6233,
     "lng": -71.386,
     "baseClearanceFt": 6.8,
     "type": "Fixed",
-    "notes": ""
+    "notes": "Eagle Island access",
+    "photo": "eagle-island.jpg"
+  },
+  {
+    "id": "smith-cove",
+    "name": "Smith Cove Bridge",
+    "lat": 43.602,
+    "lng": -71.445,
+    "baseClearanceFt": 6.2,
+    "type": "Fixed",
+    "notes": "Smith Cove - PWC friendly",
+    "photo": "smith-cove.jpg"
+  },
+  {
+    "id": "pickerel-cove",
+    "name": "Pickerel Cove Bridge",
+    "lat": 43.615,
+    "lng": -71.432,
+    "baseClearanceFt": 5.8,
+    "type": "Fixed",
+    "notes": "Near Weirs - low",
+    "photo": "pickerel-cove.jpg"
+  },
+  {
+    "id": "paugus-bay",
+    "name": "Paugus Bay Bridge (Laconia)",
+    "lat": 43.573,
+    "lng": -71.461,
+    "baseClearanceFt": 9.0,
+    "type": "Fixed",
+    "notes": "High clearance - car route",
+    "photo": "paugus-bay.jpg"
+  },
+  {
+    "id": "bear-island",
+    "name": "Bear Island Bridge (Post Office)",
+    "lat": 43.634,
+    "lng": -71.385,
+    "baseClearanceFt": 7.0,
+    "type": "Fixed",
+    "notes": "Bear Island mail boat",
+    "photo": "bear-island.jpg"
   }
 ]

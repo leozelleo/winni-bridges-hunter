@@ -1,175 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Winni-Bridges-Hunter — Bizer routing</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-:root{--navy:#0f172a;--slate:#1e293b}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f1f5f9;color:#0f172a}
-#header{padding:12px 16px;background:var(--navy);color:white;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:1000}
-#header h1{margin:0;font-size:18px;display:flex;gap:8px;align-items:center}
-#lakeStatus{background:var(--slate);padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.4;max-width:520px}
-#topControls{padding:10px 16px;background:white;border-bottom:1px solid #e2e8f0;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.vehicle-group{display:flex;gap:6px;flex-wrap:wrap}
-.vehicle-btn{padding:6px 12px;border-radius:999px;border:1px solid #cbd5e1;background:white;cursor:pointer;font-size:13px;font-weight:600}
-.vehicle-btn.active{background:var(--navy);color:white;border-color:var(--navy)}
+body{margin:0;font-family:system-ui;background:#f1f5f9}
+#header{padding:10px 16px;background:#0f172a;color:white;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:1000}
+#lakeStatus{background:#1e293b;padding:8px 12px;border-radius:8px;font-size:12px}
+#topControls{padding:10px 16px;background:white;border-bottom:2px solid #0f172a;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.vehicle-btn{padding:6px 12px;border-radius:999px;border:1px solid #cbd5e1;background:white;cursor:pointer;font-size:12px;font-weight:700}
+.vehicle-btn.active{background:#0f172a;color:white;border-color:#0f172a}
 #map{height:58vh;min-height:420px}
-#panel{padding:16px;display:grid;grid-template-columns:1.3fr .7fr;gap:16px;max-width:1600px;margin:0 auto}
+#panel{display:grid;grid-template-columns:1.4fr .6fr;gap:16px;padding:16px;max-width:1600px;margin:0 auto}
 @media(max-width:1000px){#panel{grid-template-columns:1fr}}
 .card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-.bridge{display:grid;grid-template-columns:80px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;align-items:center}
-.bridge:last-child{border:0}
-.bridge img{width:80px;height:60px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;background:#e2e8f0}
-.badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;display:inline-block}
-.ok{background:#dcfce7;color:#166534}.warn{background:#fef9c3;color:#854d0e}.danger{background:#fee2e2;color:#991b1b}.live{background:#0f172a;color:white;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.8}}
+.bridge{display:grid;grid-template-columns:90px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;align-items:center;cursor:pointer}
+.bridge:hover{background:#f8fafc}
+.bridge img{width:90px;height:68px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;background:#e2e8f0}
+.badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.ok{background:#dcfce7;color:#166534}.warn{background:#fef9c3;color:#854d0e}.danger{background:#fee2e2;color:#991b1b}.live{background:#0f172a;color:white}
 .small{font-size:11px;color:#64748b}
 </style>
 </head>
 <body>
-<div id="header">
-  <h1>🚤 Winni-Bridges-Hunter — Bizer routing</h1>
-  <div id="lakeStatus">Loading LIVE lake level…</div>
-</div>
-
+<div id="header"><h1>🚤 Winni-Bridges-Hunter — Bizer routing</h1><div id="lakeStatus">Loading LIVE…</div></div>
 <div id="topControls">
-  <strong style="font-size:13px">Vehicle:</strong>
-  <div class="vehicle-group" id="vehicleGroup">
-    <button class="vehicle-btn" data-type="kayak" data-draft="2.0">🛶 Kayak (2.0ft)</button>
-    <button class="vehicle-btn" data-type="pwc" data-draft="3.5">🏄 PWC / Jet Ski (3.5ft)</button>
-    <button class="vehicle-btn active" data-type="boat" data-draft="5.0">🚤 Boat / Bowrider (5.0ft)</button>
-    <button class="vehicle-btn" data-type="pontoon" data-draft="6.5">🛥️ Pontoon (6.5ft)</button>
-    <button class="vehicle-btn" data-type="car" data-draft="12.0">🚗 Car - view by road</button>
-  </div>
-  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-    <input id="customDraft" type="number" value="5.0" step="0.1" style="width:70px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:8px"> ft
-    <button onclick="applyCustom()" style="padding:6px 12px;border-radius:8px;border:0;background:var(--navy);color:white;cursor:pointer">Apply</button>
-  </div>
+<strong style="font-size:12px">Vehicle:</strong>
+<div id="vehicleGroup" style="display:flex;gap:6px;flex-wrap:wrap">
+<button class="vehicle-btn" data-type="kayak" data-draft="2.0">🛶 Kayak (2.0ft)</button>
+<button class="vehicle-btn" data-type="pwc" data-draft="3.5">🏄 PWC / Jet Ski (3.5ft)</button>
+<button class="vehicle-btn active" data-type="boat" data-draft="5.0">🚤 Boat / Bowrider (5.0ft)</button>
+<button class="vehicle-btn" data-type="pontoon" data-draft="6.5">🛥️ Pontoon (6.5ft)</button>
+<button class="vehicle-btn" data-type="car" data-draft="12.0">🚗 Car - view by road</button>
 </div>
-
+<div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+<input id="customDraft" type="number" value="5.0" step="0.1" style="width:70px;padding:6px;border:1px solid #cbd5e1;border-radius:8px"> ft
+<button onclick="applyCustom()" style="padding:6px 10px;border-radius:8px;border:0;background:#0f172a;color:white">Apply</button>
+</div>
+</div>
 <div id="map"></div>
-
 <div id="panel">
-  <div class="card">
-    <h3 style="margin:0 0 8px">Bridges - Clearance vs Current Level <span id="count" class="small"></span></h3>
-    <div class="small" style="margin-bottom:12px">Clearance = Base - (CurrentLevel - 504.32ft Full Pool) | Photos are placeholders - replace with your bridge photos in /images/</div>
-    <div id="bridgeList"></div>
-  </div>
-  <div class="card">
-    <h3 style="margin:0 0 10px">Bizer Route Check</h3>
-    <div id="currentVehicle" style="font-size:13px;margin-bottom:10px"></div>
-    <div id="routeResult" style="font-size:13px"></div>
-    <hr style="margin:14px 0;border:0;border-top:1px solid #e2e8f0">
-    <div class="small" style="line-height:1.6">
-      API: <a href="/api/lakelevel" target="_blank">/api/lakelevel</a> — <span id="liveBadge"></span><br>
-      Stable: <span id="stableUrl" style="font-family:monospace"></span><br>
-      Full Pool: 504.32 ft | Datum: Gage + 500ft<br>
-      Official gauge: Endicott Park per NH RSA 482:84<br>
-      <a href="https://www.des.nh.gov/water/dam-maintenance/dam-bureau/lake-levels" target="_blank">NH DES Dam Bureau</a> | <a href="https://www.bizer.com/bzt/bztmap.shtml" target="_blank">Bizer</a>
-    </div>
-    <div id="photoPreview" style="margin-top:12px"></div>
-  </div>
+<div class="card"><h3 style="margin:0 0 8px">Bridges - Clearance vs Current Level <span id="count" class="small"></span></h3><div class="small" style="margin-bottom:10px">21 bridges • Clearance = Base - (Level - 504.32) • Click row to zoom • Photos in /images/</div><div id="bridgeList"></div></div>
+<div class="card"><h3 style="margin:0 0 8px">Bizer Route Check</h3><div id="currentVehicle" style="font-size:13px;margin-bottom:8px"></div><div id="routeResult"></div><hr style="margin:12px 0"><div class="small">API: <a href="/api/lakelevel" target="_blank">/api/lakelevel</a> <span id="liveBadge"></span><br>Stable: <span id="stableUrl" style="font-family:monospace"></span><br>Full Pool 504.32ft | <a href="https://www.des.nh.gov/water/dam-maintenance/dam-bureau/lake-levels" target="_blank">NH DES</a> | <a href="https://www.bizer.com/bzt/bztmap.shtml" target="_blank">Bizer</a></div><div id="photoPreview" style="margin-top:12px"></div></div>
 </div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const FULL_POOL = 504.32;
-let currentLevel = null, bridges = [], currentDraft = 5.0, currentVehicle = 'boat';
-let map, markers = [];
-
-async function load(){
-  document.getElementById('stableUrl').textContent = window.location.origin;
-  bridges = await (await fetch('./data/bridges.json')).json();
-  document.getElementById('count').textContent = `(${bridges.length} bridges)`;
-  
-  try {
-    const r = await fetch('/api/lakelevel');
-    const d = await r.json();
-    currentLevel = d.level;
-    const dt = new Date(d.time).toLocaleString();
-    document.getElementById('lakeStatus').innerHTML = `Level: <b>${d.level} ft</b> (${d.gageHeight.toFixed(2)}ft gage) <span class="badge live">LIVE</span> | Full ${d.fullPool} ft<br><small>${dt} | ${d.source}</small>`;
-    document.getElementById('liveBadge').innerHTML = `<span class="badge live">LIVE ${d.level}ft</span> ${dt}`;
-  } catch(e){
-    currentLevel = 504.10;
-    document.getElementById('lakeStatus').innerHTML = `Level: <b>504.10 ft (est)</b> <span class="badge warn">EST</span> | Full 504.32 ft<br><small>Failed to load API, using estimate</small>`;
-  }
-  renderBridges();
-  initMap();
-  checkRoute();
-}
-
-function getClearance(br){ return currentLevel===null ? br.baseClearanceFt : br.baseClearanceFt - (currentLevel - FULL_POOL); }
-
-function renderBridges(){
-  const list = document.getElementById('bridgeList');
-  list.innerHTML = '';
-  bridges.forEach(br=>{
-    const clr = getClearance(br);
-    let badge = '<span class="badge ok">OK</span>';
-    let blocked = clr < currentDraft;
-    if(blocked) badge = '<span class="badge danger">BLOCKED</span>';
-    else if(clr < currentDraft + 1) badge = '<span class="badge warn">LOW</span>';
-    const div = document.createElement('div');
-    div.className = 'bridge';
-    div.style.opacity = blocked ? '0.6' : '1';
-    div.innerHTML = `
-      <img src="./images/${br.photo}" onerror="this.src='https://via.placeholder.com/80x60?text=${encodeURIComponent(br.name)}'" alt="${br.name}">
-      <div><b>${br.name}</b><br><span class="small">${br.baseClearanceFt}ft base • ${br.notes||''}</span><br><span class="small">Current: ${clr.toFixed(1)}ft vs your ${currentDraft}ft</span></div>
-      <div style="text-align:right"><b>${clr.toFixed(1)}ft</b><br>${badge}</div>
-    `;
-    div.onclick = () => { map.setView([br.lat, br.lng], 15); document.getElementById('photoPreview').innerHTML = `<img src="./images/${br.photo}" style="width:100%;border-radius:8px"><br><b>${br.name}</b><br><small>${br.notes}</small>`; };
-    list.appendChild(div);
-  });
-}
-
-function initMap(){
-  if(map) map.remove();
-  map = L.map('map').setView([43.61, -71.42], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(map);
-  markers = [];
-  bridges.forEach(br=>{
-    const clr = getClearance(br);
-    const color = clr < currentDraft ? 'red' : clr < currentDraft+1 ? 'orange' : 'green';
-    const m = L.circleMarker([br.lat, br.lng], {radius:10,color:color,fillColor:color,fillOpacity:0.85,weight:2}).addTo(map)
-      .bindPopup(`<b>${br.name}</b><br><img src="./images/${br.photo}" style="width:200px;height:120px;object-fit:cover"><br>Base: ${br.baseClearanceFt}ft<br>Current: ${clr.toFixed(1)}ft<br><small>${br.notes||''}</small>`);
-    markers.push(m);
-  });
-}
-
-function checkRoute(){
-  const blocked = bridges.filter(br=> getClearance(br) < currentDraft);
-  const marginal = bridges.filter(br=>{const c=getClearance(br); return c>=currentDraft && c < currentDraft+1;});
-  let html = `<div style="margin-bottom:8px"><b>${currentVehicle.toUpperCase()}</b> draft: <b>${currentDraft}ft</b> | Level: ${currentLevel}ft</div>`;
-  if(blocked.length===0) html += `<div class="badge ok" style="padding:6px 10px;font-size:13px">✓ Route CLEAR</div>`;
-  else html += `<div class="badge danger" style="padding:6px 10px">✗ BLOCKED at ${blocked.length} bridge(s)</div><ul style="margin:8px 0 0 18px">${blocked.map(b=>`<li>${b.name} (${getClearance(b).toFixed(1)}ft < ${currentDraft}ft)</li>`).join('')}</ul>`;
-  if(marginal.length) html += `<div style="margin-top:10px"><b>Marginal (&lt;1ft safety):</b><ul style="margin:4px 0 0 18px">${marginal.map(b=>`<li>${b.name} (${getClearance(b).toFixed(1)}ft)</li>`).join('')}</ul></div>`;
-  if(currentVehicle==='car') html += `<div class="small" style="margin-top:10px">Car mode: shows all bridges for road viewing, clearance is for boat under bridge.</div>`;
-  document.getElementById('routeResult').innerHTML = html;
-  document.getElementById('currentVehicle').innerHTML = `Vehicle: <b>${currentVehicle}</b> (${currentDraft}ft air draft)`;
-  renderBridges();
-  // update map colors
-  if(map){ initMap(); }
-}
-
-// Vehicle selector
-document.querySelectorAll('.vehicle-btn').forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll('.vehicle-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentDraft = parseFloat(btn.dataset.draft);
-    currentVehicle = btn.dataset.type;
-    document.getElementById('customDraft').value = currentDraft;
-    checkRoute();
-  };
-});
-
-function applyCustom(){
-  const v = parseFloat(document.getElementById('customDraft').value);
-  if(!isNaN(v)){ currentDraft = v; currentVehicle = 'custom'; checkRoute(); }
-}
-
+const FULL_POOL=504.32;let currentLevel=null,bridges=[],currentDraft=5.0,currentVehicle='boat',map;
+async function load(){document.getElementById('stableUrl').textContent=window.location.origin;bridges=await (await fetch('./data/bridges.json')).json();document.getElementById('count').textContent=`(${bridges.length} bridges)`;try{const r=await fetch('/api/lakelevel');const d=await r.json();currentLevel=d.level;const dt=new Date(d.time).toLocaleString();document.getElementById('lakeStatus').innerHTML=`Level: <b>${d.level} ft</b> (${d.gageHeight.toFixed(2)}ft gage) <span class="badge live">LIVE</span> | Full ${d.fullPool} ft<br><small>${dt} | ${d.source}</small>`;document.getElementById('liveBadge').innerHTML=`<span class="badge live">LIVE ${d.level}ft</span> ${dt}`;}catch(e){currentLevel=504.10;document.getElementById('lakeStatus').innerHTML=`Level: <b>504.10 ft (est)</b> | Full 504.32 ft`;}render();initMap();checkRoute();}
+function getClr(br){return currentLevel==null?br.baseClearanceFt:br.baseClearanceFt-(currentLevel-FULL_POOL);}
+function render(){const list=document.getElementById('bridgeList');list.innerHTML='';bridges.forEach(br=>{const clr=getClr(br);let badge='<span class="badge ok">OK</span>';if(clr<currentDraft)badge='<span class="badge danger">BLOCKED</span>';else if(clr<currentDraft+1)badge='<span class="badge warn">LOW</span>';const div=document.createElement('div');div.className='bridge';div.innerHTML=`<img src="./images/${br.photo}" onerror="this.src='https://via.placeholder.com/90x68?text=Bridge'" alt="${br.name}"><div><b>${br.name}</b><br><span class="small">${br.baseClearanceFt}ft base • ${br.notes||''}</span><br><span class="small">Current: ${clr.toFixed(1)}ft vs your ${currentDraft}ft</span></div><div style="text-align:right"><b>${clr.toFixed(1)}ft</b><br>${badge}</div>`;div.onclick=()=>{map.setView([br.lat,br.lng],15);document.getElementById('photoPreview').innerHTML=`<img src="./images/${br.photo}" style="width:100%;border-radius:8px" onerror="this.style.display='none'"><br><b>${br.name}</b><br><span class="small">${br.lat.toFixed(5)}, ${br.lng.toFixed(5)}<br>${br.notes||''}<br>Base ${br.baseClearanceFt}ft | Current ${clr.toFixed(1)}ft</span>`;};list.appendChild(div);});}
+function initMap(){if(map)map.remove();map=L.map('map').setView([43.61,-71.42],11);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);bridges.forEach(br=>{const clr=getClr(br);const color=clr<currentDraft?'red':clr<currentDraft+1?'orange':'green';const icon = L.divIcon({className:'',html:`<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.5)"></div>`});L.marker([br.lat,br.lng],{icon:icon}).addTo(map).bindPopup(`<b>${br.name}</b><br><img src="./images/${br.photo}" style="width:220px;height:140px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'"><br>Base: ${br.baseClearanceFt}ft<br>Current: ${clr.toFixed(1)}ft<br><small>${br.notes||''}</small><br><small>${br.lat.toFixed(5)}, ${br.lng.toFixed(5)}</small>`);});}
+function checkRoute(){const blocked=bridges.filter(br=>getClr(br)<currentDraft);const marginal=bridges.filter(br=>{const c=getClr(br);return c>=currentDraft&&c<currentDraft+1;});let html=`<div><b>${currentVehicle.toUpperCase()}</b> ${currentDraft}ft | Level ${currentLevel}ft</div>`;if(blocked.length===0)html+=`<div class="badge ok" style="padding:6px 10px;margin-top:6px">✓ CLEAR - all ${bridges.length} bridges pass</div>`;else html+=`<div class="badge danger" style="padding:6px 10px;margin-top:6px">✗ BLOCKED at ${blocked.length}/${bridges.length}</div><ul style="margin:8px 0 0 18px">${blocked.map(b=>`<li>${b.name} (${getClr(b).toFixed(1)}ft < ${currentDraft}ft)</li>`).join('')}</ul>`;if(marginal.length)html+=`<div style="margin-top:8px"><b>Marginal:</b><ul style="margin:4px 0 0 18px">${marginal.map(b=>`<li>${b.name} (${getClr(b).toFixed(1)}ft)</li>`).join('')}</ul></div>`;document.getElementById('routeResult').innerHTML=html;document.getElementById('currentVehicle').innerHTML=`Vehicle: <b>${currentVehicle}</b> (${currentDraft}ft)`;render();}
+document.querySelectorAll('.vehicle-btn').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.vehicle-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentDraft=parseFloat(btn.dataset.draft);currentVehicle=btn.dataset.type;document.getElementById('customDraft').value=currentDraft;checkRoute();initMap();};});
+function applyCustom(){const v=parseFloat(document.getElementById('customDraft').value);if(!isNaN(v)){currentDraft=v;currentVehicle='custom';checkRoute();initMap();}}
 load();
 </script>
 </body>

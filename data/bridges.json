@@ -1,56 +1,44 @@
 [
   {
-    "id": "weirs-channel",
+    "id": "weirs",
     "name": "Weirs Channel Bridge (Rt 11B)",
     "lat": 43.608,
     "lng": -71.458,
-    "baseClearanceFt": 7.5,
-    "type": "Fixed",
-    "notes": "Main channel to Paugus Bay"
+    "baseClearanceFt": 7.5
   },
   {
-    "id": "governors-island",
+    "id": "gov",
     "name": "Governor's Island Bridge",
     "lat": 43.578,
     "lng": -71.438,
-    "baseClearanceFt": 6.0,
-    "type": "Fixed",
-    "notes": "Low clearance at high water"
+    "baseClearanceFt": 6.0
   },
   {
-    "id": "long-island",
-    "name": "Long Island Bridge (Moultonborough)",
+    "id": "long",
+    "name": "Long Island Bridge",
     "lat": 43.649,
     "lng": -71.425,
-    "baseClearanceFt": 8.2,
-    "type": "Fixed",
-    "notes": ""
+    "baseClearanceFt": 8.2
   },
   {
-    "id": "black-cat",
+    "id": "black",
     "name": "Black Cat Island Bridge",
     "lat": 43.59,
     "lng": -71.35,
-    "baseClearanceFt": 4.5,
-    "type": "Fixed",
-    "notes": "Very low - check level"
+    "baseClearanceFt": 4.5
   },
   {
-    "id": "sallys-gut",
+    "id": "sally",
     "name": "Sally's Gut Bridge",
     "lat": 43.599,
     "lng": -71.399,
-    "baseClearanceFt": 5.0,
-    "type": "Fixed",
-    "notes": "Narrow, low"
+    "baseClearanceFt": 5.0
   },
   {
-    "id": "eagle-island",
+    "id": "eagle",
     "name": "Eagle Island Bridge",
     "lat": 43.623,
     "lng": -71.386,
-    "baseClearanceFt": 6.8,
-    "type": "Fixed",
-    "notes": ""
+    "baseClearanceFt": 6.8
   }
 ]

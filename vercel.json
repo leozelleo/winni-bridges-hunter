@@ -1,8 +1,1 @@
-{
-  "framework": null,
-  "functions": {
-    "api/lakelevel.js": {
-      "maxDuration": 10
-    }
-  }
-}
+{}

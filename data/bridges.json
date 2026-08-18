@@ -1,1 +1,170 @@
-[{"id": "weirs-channel", "name": "Weirs Channel Bridge (Rt 11B)", "lat": 43.6082, "lng": -71.4585, "baseClearanceFt": 7.5, "photo": null, "photoUrl": "https://www.winnipesaukee.com/photopost/data/515/medium/IceOut_4512AsGF18.jpg", "notes": "Main channel"}, {"id": "governors-island", "name": "Governor's Island Bridge", "lat": 43.5781, "lng": -71.4382, "baseClearanceFt": 6.0, "photo": null, "photoUrl": "https://www.winnipesaukee.com/photopost/data/515/medium/IceOut_4512AsGF18.jpg", "notes": "Low"}, {"id": "long-island", "name": "Long Island Bridge", "lat": 43.649, "lng": -71.425, "baseClearanceFt": 8.2, "photo": null, "photoUrl": null, "notes": ""}, {"id": "black-cat", "name": "Black Cat Island Bridge", "lat": 43.5905, "lng": -71.3505, "baseClearanceFt": 4.5, "photo": null, "photoUrl": null, "notes": ""}, {"id": "sallys-gut", "name": "Sally's Gut Bridge", "lat": 43.5992, "lng": -71.3991, "baseClearanceFt": 5.0, "photo": null, "photoUrl": null, "notes": ""}, {"id": "eagle-island", "name": "Eagle Island Bridge", "lat": 43.6233, "lng": -71.386, "baseClearanceFt": 6.8, "photo": null, "photoUrl": null, "notes": ""}, {"id": "smith-cove", "name": "Smith Cove Bridge", "lat": 43.602, "lng": -71.445, "baseClearanceFt": 6.2, "photo": null, "photoUrl": null, "notes": ""}, {"id": "pickerel-cove", "name": "Pickerel Cove Bridge", "lat": 43.615, "lng": -71.432, "baseClearanceFt": 5.8, "photo": null, "photoUrl": null, "notes": ""}, {"id": "paugus-bay", "name": "Paugus Bay Bridge", "lat": 43.573, "lng": -71.461, "baseClearanceFt": 9.0, "photo": null, "photoUrl": null, "notes": ""}, {"id": "bear-island-po", "name": "Bear Island Post Office Bridge", "lat": 43.634, "lng": -71.385, "baseClearanceFt": 7.0, "photo": null, "photoUrl": null, "notes": ""}, {"id": "oak-island", "name": "Oak Island Bridge", "lat": 43.566, "lng": -71.454, "baseClearanceFt": 6.5, "photo": null, "photoUrl": null, "notes": ""}, {"id": "worcester-island", "name": "Worcester Island Bridge", "lat": 43.569, "lng": -71.457, "baseClearanceFt": 6.3, "photo": null, "photoUrl": null, "notes": ""}, {"id": "christmas-island", "name": "Christmas Island Bridge", "lat": 43.571, "lng": -71.459, "baseClearanceFt": 6.4, "photo": null, "photoUrl": null, "notes": ""}, {"id": "birch-island", "name": "Birch Island Bridge", "lat": 43.595, "lng": -71.395, "baseClearanceFt": 4.8, "photo": null, "photoUrl": null, "notes": ""}, {"id": "steamboat-island", "name": "Steamboat Island Bridge", "lat": 43.596, "lng": -71.393, "baseClearanceFt": 4.8, "photo": null, "photoUrl": null, "notes": ""}, {"id": "wolfeboro-backbay", "name": "Wolfeboro Back Bay Bridge", "lat": 43.584, "lng": -71.208, "baseClearanceFt": 5.5, "photo": null, "photoUrl": null, "notes": ""}, {"id": "alton-bay", "name": "Alton Bay Bridge", "lat": 43.452, "lng": -71.232, "baseClearanceFt": 8.5, "photo": null, "photoUrl": null, "notes": ""}, {"id": "meredith-bay", "name": "Meredith Bay Bridge", "lat": 43.651, "lng": -71.498, "baseClearanceFt": 7.8, "photo": null, "photoUrl": null, "notes": ""}, {"id": "center-harbor", "name": "Center Harbor Bridge", "lat": 43.706, "lng": -71.464, "baseClearanceFt": 7.2, "photo": null, "photoUrl": null, "notes": ""}, {"id": "moultonboro-neck", "name": "Moultonborough Neck Bridge", "lat": 43.666, "lng": -71.418, "baseClearanceFt": 6.9, "photo": null, "photoUrl": null, "notes": ""}, {"id": "bear-pine-433804", "name": "Bear/Pine Channel Bridge", "lat": 43.6345278, "lng": -71.37425, "baseClearanceFt": 7.0, "photo": null, "photoUrl": null, "notes": "USER REQUESTED 43\u00b038'04.3\"N 71\u00b022'27.3\"W"}]
+[
+  {
+    "id": "weirs-channel",
+    "name": "Weirs Channel Bridge (Rt 11B)",
+    "lat": 43.6082,
+    "lng": -71.4585,
+    "baseClearanceFt": 7.5,
+    "photo": "weirs-channel.jpg"
+  },
+  {
+    "id": "governors-island",
+    "name": "Governor's Island Bridge",
+    "lat": 43.5781,
+    "lng": -71.4382,
+    "baseClearanceFt": 6,
+    "photo": "governors-island.jpg"
+  },
+  {
+    "id": "long-island",
+    "name": "Long Island Bridge",
+    "lat": 43.649,
+    "lng": -71.425,
+    "baseClearanceFt": 8.2,
+    "photo": "long-island.jpg"
+  },
+  {
+    "id": "black-cat",
+    "name": "Black Cat Island Bridge",
+    "lat": 43.5905,
+    "lng": -71.3505,
+    "baseClearanceFt": 4.5,
+    "photo": "black-cat.jpg"
+  },
+  {
+    "id": "sallys-gut",
+    "name": "Sally's Gut Bridge",
+    "lat": 43.5992,
+    "lng": -71.3991,
+    "baseClearanceFt": 5,
+    "photo": "sallys-gut.jpg"
+  },
+  {
+    "id": "eagle-island",
+    "name": "Eagle Island Bridge",
+    "lat": 43.6233,
+    "lng": -71.386,
+    "baseClearanceFt": 6.8,
+    "photo": "eagle-island.jpg"
+  },
+  {
+    "id": "smith-cove",
+    "name": "Smith Cove Bridge",
+    "lat": 43.602,
+    "lng": -71.445,
+    "baseClearanceFt": 6.2,
+    "photo": "smith-cove.jpg"
+  },
+  {
+    "id": "pickerel-cove",
+    "name": "Pickerel Cove Bridge",
+    "lat": 43.615,
+    "lng": -71.432,
+    "baseClearanceFt": 5.8,
+    "photo": "pickerel-cove.jpg"
+  },
+  {
+    "id": "paugus-bay",
+    "name": "Paugus Bay Bridge",
+    "lat": 43.573,
+    "lng": -71.461,
+    "baseClearanceFt": 9,
+    "photo": "paugus-bay.jpg"
+  },
+  {
+    "id": "bear-island-po",
+    "name": "Bear Island PO Bridge",
+    "lat": 43.634,
+    "lng": -71.385,
+    "baseClearanceFt": 7,
+    "photo": "bear-island-po.jpg"
+  },
+  {
+    "id": "oak-island",
+    "name": "Oak Island Bridge",
+    "lat": 43.566,
+    "lng": -71.454,
+    "baseClearanceFt": 6.5,
+    "photo": "oak-island.jpg"
+  },
+  {
+    "id": "worcester-island",
+    "name": "Worcester Island Bridge",
+    "lat": 43.569,
+    "lng": -71.457,
+    "baseClearanceFt": 6.3,
+    "photo": "worcester-island.jpg"
+  },
+  {
+    "id": "christmas-island",
+    "name": "Christmas Island Bridge",
+    "lat": 43.571,
+    "lng": -71.459,
+    "baseClearanceFt": 6.4,
+    "photo": "christmas-island.jpg"
+  },
+  {
+    "id": "birch-island",
+    "name": "Birch Island Bridge",
+    "lat": 43.595,
+    "lng": -71.395,
+    "baseClearanceFt": 4.8,
+    "photo": "birch-island.jpg"
+  },
+  {
+    "id": "steamboat-island",
+    "name": "Steamboat Island Bridge",
+    "lat": 43.596,
+    "lng": -71.393,
+    "baseClearanceFt": 4.8,
+    "photo": "steamboat-island.jpg"
+  },
+  {
+    "id": "wolfeboro-backbay",
+    "name": "Wolfeboro Back Bay Bridge",
+    "lat": 43.584,
+    "lng": -71.208,
+    "baseClearanceFt": 5.5,
+    "photo": "wolfeboro-backbay.jpg"
+  },
+  {
+    "id": "alton-bay",
+    "name": "Alton Bay Bridge",
+    "lat": 43.452,
+    "lng": -71.232,
+    "baseClearanceFt": 8.5,
+    "photo": "alton-bay.jpg"
+  },
+  {
+    "id": "meredith-bay",
+    "name": "Meredith Bay Bridge",
+    "lat": 43.651,
+    "lng": -71.498,
+    "baseClearanceFt": 7.8,
+    "photo": "meredith-bay.jpg"
+  },
+  {
+    "id": "center-harbor",
+    "name": "Center Harbor Bridge",
+    "lat": 43.706,
+    "lng": -71.464,
+    "baseClearanceFt": 7.2,
+    "photo": "center-harbor.jpg"
+  },
+  {
+    "id": "moultonboro-neck",
+    "name": "Moultonborough Neck Bridge",
+    "lat": 43.666,
+    "lng": -71.418,
+    "baseClearanceFt": 6.9,
+    "photo": "moultonboro-neck.jpg"
+  },
+  {
+    "id": "bear-pine-433804",
+    "name": "Bear/Pine Channel Bridge 43°38'04.3\"N 71°22'27.3\"W",
+    "lat": 43.6345278,
+    "lng": -71.37425,
+    "baseClearanceFt": 7,
+    "photo": "bear-pine-433804.jpg"
+  }
+]
